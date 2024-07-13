@@ -1,0 +1,41 @@
+{
+  "services": [
+    {
+      "name": "first-spark-server",
+      "url": "http://localhost:8090/fsdata",
+      "serviceStatusPath": "http://localhost:8090/mmdata/status/max",
+      "type": "graphql",
+      "graphql": {
+        "path": "http://localhost:8090/mmdata/api/graphql"
+      },
+      "enabled": false
+    },
+    {
+      "name": "mmdata",
+      "type": "graphql",
+      "enabled": true,
+      "status": {
+        "checkEverySeconds": 30,
+        "request": {
+          "url": "http://localhost:3000/mmdata/status/max",
+          "headers": {
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
+            "x-authorization-auth-type": "token"
+          }
+        },
+        "checks": [
+          {
+            "name": "keysInAppEventsPub",
+            "path": "$.status.services[?(@.serviceName==\"redis\")].stats.keysInAppEventsPub",
+            "dataType": "number",
+            "minNumericValue": 24542,
+            "maxNumericValue": 100000
+          }
+        ]
+      },
+      "graphql": {
+        "path": "http://localhost:3000/mmdata/api/graphql"
+      }
+    }
+  ]
+}
