@@ -30,6 +30,25 @@ export class GenericService implements Service {
 
   public async verifyStatuses(): Promise<VerifyStatusResult[]> {
     const statuses = await this.statuses();
-    return statuses.map((status) => verifyStatusHelper(this.config.name, status, this.config.status));
+    return statuses.map((status) => {
+      const requestConfig = this.config.status.requests.find(r => r.url === status.url);
+
+      if (!requestConfig) {
+        console.error('GenericService.verifyStatuses: failed to find requestConfig.');
+        return verifyStatusHelper(
+          this.config.name,
+          status,
+          this.config.status,
+          { url: status.url },
+        )
+      }
+
+      return verifyStatusHelper(
+        this.config.name,
+        status,
+        this.config.status,
+        requestConfig,
+      )
+    });
   }
 }

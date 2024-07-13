@@ -3,7 +3,8 @@ import { ServiceStatus, ServiceType } from '@/enums';
 export interface HttpRequestConfig {
   url: string;
   method?: 'GET' | 'POST';
-  headers: { [key: string]: string };
+  headers?: { [key: string]: string };
+  data?: any;
 }
 
 export interface ServiceStatusCheck {
@@ -11,6 +12,7 @@ export interface ServiceStatusCheck {
   statusIfFail: ServiceStatus;
   jsonPath: string;
   dataType: 'boolean' | 'date' | 'number' | 'string';
+  targetVar?: string;
 
   // dataType = 'boolean':
   targetBooleanValue?: boolean;
@@ -30,7 +32,7 @@ export interface ServiceStatusCheck {
   regexFlags?: string;
 }
 
-export interface ServiceStatusRequestConfig {
+export interface ServiceStatusConfig {
   requests: HttpRequestConfig[];
   checkEverySeconds: number;
   checks: ServiceStatusCheck[];
@@ -41,7 +43,7 @@ export interface ServiceConfig {
   name: string;
   type: ServiceType;
   enabled: boolean;
-  status: ServiceStatusRequestConfig;
+  status: ServiceStatusConfig;
   serviceStatusPath: string;
 }
 
