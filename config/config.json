@@ -25,11 +25,19 @@
         },
         "checks": [
           {
+            "name": "status",
+            "jsonPath": "$.status.status",
+            "dataType": "string",
+            "targetStringValue": "ok",
+            "statusIfFail": "offline"
+          },
+          {
             "name": "keysInAppEventsPub",
-            "path": "$.status.services[?(@.serviceName==\"redis\")].stats.keysInAppEventsPub",
+            "jsonPath": "$.status.services[?(@.serviceName==\"redis\")].stats.keysInAppEventsPub",
             "dataType": "number",
             "minNumericValue": 24542,
-            "maxNumericValue": 100000
+            "maxNumericValue": 100000,
+            "statusIfFail": "limited"
           }
         ]
       },

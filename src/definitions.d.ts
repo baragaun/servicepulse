@@ -47,8 +47,10 @@ export interface ServiceConfig {
 
 export interface Service {
   config: ServiceConfig;
+  name(): string;
   enabled: () => boolean;
   status: () => Promise<any>;
+  verifyStatus: () => Promise<VerifyStatusResult>;
 }
 
 export interface GraphqlServiceConfig extends ServiceConfig {
@@ -56,4 +58,16 @@ export interface GraphqlServiceConfig extends ServiceConfig {
 
 export interface BgServicePulseConfig {
   services: ServiceConfig[];
+}
+
+export interface StatusCheckResult {
+  name: string;
+  passed: boolean;
+  error?: string;
+}
+
+export interface VerifyStatusResult {
+  serviceName: string;
+  checks: StatusCheckResult[];
+  newStatus: ServiceStatus;
 }

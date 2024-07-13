@@ -10,8 +10,9 @@ import rateLimiter from '@/common/middleware/rateLimiter';
 import requestLogger from '@/common/middleware/requestLogger';
 import { env } from '@/common/utils/envConfig';
 import { BgServicePulseConfig } from '@/definitions';
-import { statusRouter } from '@/routes/status/statusRouter';
+import initStatusRoute from '@/routes/statusRoute';
 import { ServiceList } from '@/services/ServiceList';
+import initVerifyStatusRoute from '@/routes/verifyStatusRoute'
 
 const logger = pino({ name: 'server start' });
 
@@ -35,7 +36,8 @@ app.use(rateLimiter);
 app.use(requestLogger);
 
 // Routes
-app.use('/', statusRouter);
+initStatusRoute(app, '/status');
+initVerifyStatusRoute(app, '/verify-status');
 
 // Error handlers
 app.use(errorHandler());

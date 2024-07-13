@@ -1,11 +1,9 @@
-import express, { Request, Response, Router } from 'express';
+import { Express, Request, Response } from 'express';
 
 import appData from '@/appData';
 
-export const statusRouter: Router = (() => {
-  const router = express.Router();
-
-  router.get('/', (_req: Request, res: Response) => {
+const initStatusRoute = (app: Express, path: string) => {
+  app.get(path, (_req: Request, res: Response) => {
     const services = appData.getServices();
 
     if (!services) {
@@ -19,6 +17,6 @@ export const statusRouter: Router = (() => {
       res.end(JSON.stringify(status));
     });
   });
+};
 
-  return router;
-})();
+export default initStatusRoute;

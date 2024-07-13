@@ -1,6 +1,7 @@
-import { BgServicePulseConfig, Service } from '@/definitions';
+import { BgServicePulseConfig, Service, VerifyStatusResult } from '@/definitions'
 import serviceFactory from '@/services/serviceFactory';
 import statusImpl from '@/services/status';
+import verifyStatusImpl from '@/services/verifyStatus';
 
 export class ServiceList {
   private readonly appConfig: BgServicePulseConfig;
@@ -13,7 +14,11 @@ export class ServiceList {
       .map((serviceConfig) => serviceFactory(serviceConfig));
   }
 
-  public status() {
+  public status(): Promise<any> {
     return statusImpl(this.services);
+  }
+
+  public verifyStatus(): Promise<VerifyStatusResult[]> {
+    return verifyStatusImpl(this.services);
   }
 }

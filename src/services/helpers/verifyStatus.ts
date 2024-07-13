@@ -1,6 +1,11 @@
-import jsonpath from 'jsonpath'
+import jsonpath from 'jsonpath';
 
-import { ServiceStatusCheck, ServiceStatusRequestConfig } from '@/definitions';
+import {
+  ServiceStatusCheck,
+  ServiceStatusRequestConfig,
+  StatusCheckResult,
+  VerifyStatusResult,
+} from '@/definitions';
 import { ServiceStatus } from '@/enums';
 
 // [
@@ -195,31 +200,53 @@ const verifyCheck = (stringValue: string, config: ServiceStatusCheck) => {
   return false;
 };
 
-const verifyStatus = (status: any, statusConfig: ServiceStatusRequestConfig): ServiceStatus => {
+const verifyStatus = (
+  serviceName: string,
+  status: any,
+  statusConfig: ServiceStatusRequestConfig,
+): VerifyStatusResult => {
   try {
+    const result: VerifyStatusResult = {
+      serviceName,
+      newStatus: ServiceStatus.ok,
+      checks: [],
+    };
+
     if (!status) {
       console.error('verifyStatus: no status given');
-      return ServiceStatus.offline;
+      result.newStatus = ServiceStatus.offline;
+      return result;
     }
     if (!statusConfig) {
       console.error('verifyStatus: no statusConfig given');
-      return ServiceStatus.offline;
+      result.newStatus = ServiceStatus.offline;
+      return result;
     }
-
-    let serviceStatus = ServiceStatus.ok;
 
     for (let i = 0; i < statusConfig.checks.length; i++) {
-      const value = jsonpath.query(status, statusConfig.checks[i].jsonPath);
-      if (!verifyCheck(value as any, statusConfig.checks[i])) {
+      const checkResult: StatusCheckResult = {
+        name: statusConfig.checks[i].name,
+        passed: true,
+      };
+      const values = jsonpath.query(status, statusConfig.checks[i].jsonPath);
+      if (!Array.isArray(values) || values.length != 1) {
+        checkResult.passed = false;
+        checkResult.error = 'value-not-found';
+      } else if (!verifyCheck(values[0] as any, statusConfig.checks[i])) {
+        checkResult.passed = false;
+        // checkResult.error = 'value-failed';
         if (statusConfig.checks[i].statusIfFail === ServiceStatus.offline) {
-          return ServiceStatus.offline;
+          result.newStatus = ServiceStatus.offline;
         } else if (statusConfig.checks[i].statusIfFail === ServiceStatus.limited) {
-          serviceStatus = ServiceStatus.offline;
+          if (result.newStatus === ServiceStatus.ok) {
+            result.newStatus = ServiceStatus.limited;
+          }
         }
       }
+      result.checks.push(checkResult);
     }
 
-    return serviceStatus;
+    return result;
   } catch (error) {
     console.error(error);
   }
