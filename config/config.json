@@ -44,6 +44,84 @@
       "graphql": {
         "path": "http://localhost:3000/mmdata/api/graphql"
       }
+    },
+    {
+      "name": "bgvault-kz",
+      "type": "generic",
+      "enabled": true,
+      "status": {
+        "checkEverySeconds": 30,
+        "request": {
+          "url": "https://bgvault-kz01.baragaun.xyz/status",
+          "headers": {
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
+            "x-authorization-auth-type": "token"
+          }
+        },
+        "checks": [
+          {
+            "name": "node-name",
+            "jsonPath": "$.status.node",
+            "dataType": "string",
+            "targetStringValue": "KZ01",
+            "statusIfFail": "offline"
+          },
+          {
+            "name": "status",
+            "jsonPath": "$.status.status",
+            "dataType": "string",
+            "targetStringValue": "ok",
+            "statusIfFail": "offline"
+          },
+          {
+            "name": "total-records",
+            "jsonPath": "$.status..[\"total-records\"]",
+            "dataType": "number",
+            "minNumericValue": 2,
+            "maxNumericValue": 100000,
+            "statusIfFail": "offline"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bgvault-uz",
+      "type": "generic",
+      "enabled": true,
+      "status": {
+        "checkEverySeconds": 30,
+        "request": {
+          "url": "https://bgvault-uz01.baragaun.xyz/status",
+          "headers": {
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
+            "x-authorization-auth-type": "token"
+          }
+        },
+        "checks": [
+          {
+            "name": "node-name",
+            "jsonPath": "$.status.node",
+            "dataType": "string",
+            "targetStringValue": "UZ01",
+            "statusIfFail": "offline"
+          },
+          {
+            "name": "status",
+            "jsonPath": "$.status.status",
+            "dataType": "string",
+            "targetStringValue": "ok",
+            "statusIfFail": "offline"
+          },
+          {
+            "name": "total-records",
+            "jsonPath": "$.status..[\"total-records\"]",
+            "dataType": "number",
+            "minNumericValue": 2,
+            "maxNumericValue": 100000,
+            "statusIfFail": "offline"
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,38 +1,21 @@
 import { GraphQLClient } from 'graphql-request';
 
-import { GraphqlServiceConfig, Service, ServiceConfig, VerifyStatusResult } from '@/definitions'
+import { GraphqlServiceConfig } from '@/definitions';
 import { ServiceType } from '@/enums';
-import statusImpl from '@/services/graphql/status';
-import verifyStatusHelper from '@/services/helpers/verifyStatus';
+import { GenericService } from '@/services/generic/GenericService';
 
-export class GraphqlService implements Service {
+export class GraphqlService extends GenericService {
   public type = ServiceType.graphql;
-  private readonly config: ServiceConfig;
+  protected readonly config: GraphqlServiceConfig;
   private graphqlClient: GraphQLClient | undefined;
 
   public constructor(serviceConfig: GraphqlServiceConfig) {
+    super(serviceConfig);
     this.config = serviceConfig;
     this.init();
   }
 
   public init(): void {
-    this.graphqlClient = new GraphQLClient(this.config.endpoint);
-  }
-
-  public name(): string {
-    return this.config.name;
-  }
-
-  public enabled(): boolean {
-    return this.config.enabled;
-  }
-
-  public status(): Promise<any> {
-    return statusImpl(this.config);
-  }
-
-  public async verifyStatus(): Promise<VerifyStatusResult> {
-    const status = await this.status();
-    return verifyStatusHelper(this.config.name, status, this.config.status);
+    this.graphqlClient = new GraphQLClient((this.config as GraphqlServiceConfig).endpoint);
   }
 }

@@ -1,4 +1,5 @@
 export enum ServiceType {
+  generic = 'generic',
   graphql = 'graphql',
 }
 

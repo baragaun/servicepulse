@@ -173,7 +173,7 @@ const verifyStringCheck = (stringValue: string, config: ServiceStatusCheck) => {
   if (config.dataType !== 'string') {
     return false;
   }
-  if (config.targetStringValue || stringValue !== config.targetStringValue) {
+  if (config.targetStringValue && stringValue !== config.targetStringValue) {
     return false;
   }
   if (
@@ -228,13 +228,27 @@ const verifyStatus = (
         name: statusConfig.checks[i].name,
         passed: true,
       };
-      const values = jsonpath.query(status, statusConfig.checks[i].jsonPath);
-      if (!Array.isArray(values) || values.length != 1) {
+
+      let values: string[];
+      try {
+        values = jsonpath.query(status, statusConfig.checks[i].jsonPath);
+      } catch (error) {
+        console.error(error);
         checkResult.passed = false;
-        checkResult.error = 'value-not-found';
-      } else if (!verifyCheck(values[0] as any, statusConfig.checks[i])) {
-        checkResult.passed = false;
-        // checkResult.error = 'value-failed';
+        checkResult.error = 'jsonpath-failed';
+      }
+
+      if (checkResult.passed) {
+        if (!Array.isArray(values) || values.length != 1) {
+          checkResult.passed = false;
+          checkResult.error = 'value-not-found';
+        } else if (!verifyCheck(values[0] as any, statusConfig.checks[i])) {
+          checkResult.passed = false;
+          // checkResult.error = 'value-failed';
+        }
+      }
+
+      if (!checkResult.passed) {
         if (statusConfig.checks[i].statusIfFail === ServiceStatus.offline) {
           result.newStatus = ServiceStatus.offline;
         } else if (statusConfig.checks[i].statusIfFail === ServiceStatus.limited) {
@@ -243,6 +257,7 @@ const verifyStatus = (
           }
         }
       }
+
       result.checks.push(checkResult);
     }
 
