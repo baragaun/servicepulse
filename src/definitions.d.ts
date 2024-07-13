@@ -31,7 +31,7 @@ export interface ServiceStatusCheck {
 }
 
 export interface ServiceStatusRequestConfig {
-  request: HttpRequestConfig;
+  requests: HttpRequestConfig[];
   checkEverySeconds: number;
   checks: ServiceStatusCheck[];
 }
@@ -49,8 +49,8 @@ export interface Service {
   config: ServiceConfig;
   name(): string;
   enabled: () => boolean;
-  status: () => Promise<any>;
-  verifyStatus: () => Promise<VerifyStatusResult>;
+  statuses: () => Promise<any[]>;
+  verifyStatuses: () => Promise<VerifyStatusResult[]>;
 }
 
 export interface GraphqlServiceConfig extends ServiceConfig {
@@ -68,6 +68,7 @@ export interface StatusCheckResult {
 
 export interface VerifyStatusResult {
   serviceName: string;
+  url: string;
   checks: StatusCheckResult[];
   newStatus: ServiceStatus;
 }

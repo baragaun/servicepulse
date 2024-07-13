@@ -208,6 +208,7 @@ const verifyStatus = (
   try {
     const result: VerifyStatusResult = {
       serviceName,
+      url: status.url,
       newStatus: ServiceStatus.ok,
       checks: [],
     };

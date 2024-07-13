@@ -16,13 +16,13 @@
       "enabled": true,
       "status": {
         "checkEverySeconds": 30,
-        "request": {
+        "requests": [{
           "url": "http://localhost:3000/mmdata/status/max",
           "headers": {
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
             "x-authorization-auth-type": "token"
           }
-        },
+        }],
         "checks": [
           {
             "name": "status",
@@ -51,13 +51,13 @@
       "enabled": true,
       "status": {
         "checkEverySeconds": 30,
-        "request": {
+        "requests": [{
           "url": "https://bgvault-kz01.baragaun.xyz/status",
           "headers": {
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
             "x-authorization-auth-type": "token"
           }
-        },
+        }],
         "checks": [
           {
             "name": "node-name",
@@ -90,13 +90,13 @@
       "enabled": true,
       "status": {
         "checkEverySeconds": 30,
-        "request": {
+        "requests": [{
           "url": "https://bgvault-uz01.baragaun.xyz/status",
           "headers": {
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
             "x-authorization-auth-type": "token"
           }
-        },
+        }],
         "checks": [
           {
             "name": "node-name",

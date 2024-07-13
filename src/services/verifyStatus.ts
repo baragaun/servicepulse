@@ -6,11 +6,9 @@ const verifyStatus = async (services: Service[]): Promise<VerifyStatusResult[]> 
   }
   const promises = services
     .filter((service) => service.enabled())
-    .map((service) => service.verifyStatus());
+    .map((service) => service.verifyStatuses());
 
-  const statuses = await Promise.all(promises);
-
-  return statuses;
+  return (await Promise.all(promises)).flat();
 };
 
 export default verifyStatus;

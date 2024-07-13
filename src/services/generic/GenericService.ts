@@ -1,4 +1,4 @@
-import { Service, ServiceConfig, VerifyStatusResult } from '@/definitions';
+import { HttpRequestConfig, Service, ServiceConfig, VerifyStatusResult } from '@/definitions'
 import { ServiceType } from '@/enums';
 import statusImpl from '@/services/generic/status';
 import verifyStatusHelper from '@/services/helpers/verifyStatus';
@@ -19,12 +19,17 @@ export class GenericService implements Service {
     return this.config.enabled;
   }
 
-  public status(): Promise<any> {
-    return statusImpl(this.config);
+  protected status(request: HttpRequestConfig): Promise<any> {
+    return statusImpl(this.config, request);
   }
 
-  public async verifyStatus(): Promise<VerifyStatusResult> {
-    const status = await this.status();
-    return verifyStatusHelper(this.config.name, status, this.config.status);
+  public statuses(): Promise<any[]> {
+    const promises = this.config.status.requests.map((request) => this.status(request));
+    return Promise.all(promises);
+  }
+
+  public async verifyStatuses(): Promise<VerifyStatusResult[]> {
+    const statuses = await this.statuses();
+    return statuses.map((status) => verifyStatusHelper(this.config.name, status, this.config.status));
   }
 }
