@@ -7,13 +7,12 @@ const status = async (serviceConfig: ServiceConfig, request: HttpRequestConfig):
     return;
   }
 
-  const status = await fetchJson(request);
-  console.log('graphql status=', status);
+  const { data } = await fetchJson(request);
 
   return {
     service: serviceConfig.name,
     url: request.url,
-    status,
+    status: data,
   };
 };
 

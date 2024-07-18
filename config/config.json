@@ -41,8 +41,223 @@
           }
         ]
       },
+      "e2eTests": {
+        "vars": {
+          "userId1": "",
+          "userId2": "",
+          "firstName1": "Alana",
+          "firstName2": "Bila",
+          "lastName1": "Birch",
+          "lastName2": "Snickl",
+          "userHandle1": "abila",
+          "userHandle2": "bsnickl",
+          "authToken1": "",
+          "authToken2": "",
+          "deviceUuid1": "a6b6292fc8a1fae1b016ecc4453ab3b1",
+          "deviceUuid2": "e7aef249093d44c29fa480e89598e3ba",
+          "phoneNumber1": "+15036229050",
+          "phoneNumber2": "+15036229051",
+          "email1": "holger+e4etest-1@baragaun.com",
+          "email2": "holger+e4etest-2@baragaun.com",
+          "password": "test1234"
+        },
+        "headers": {
+          "content-type": "application/json",
+          "accept": "application/json"
+        },
+        "sequences": [
+          {
+            "name": "user-crud",
+            "endpoint": "http://localhost:3000/mmdata/api/graphql",
+            "method": "POST",
+            "tests": [
+              {
+                "type": "json-http-request",
+                "name": "create-user-1",
+                "enabled": true,
+                "waitMilliSecondsAfter": 2000,
+                "endpoint": "http://localhost:3000/mmdata/api/graphql",
+                "headers": {
+                  "Authorization": "Bearer none",
+                  "x-authorization-auth-type": "none",
+                  "x-device": "${deviceUuid1}"
+                },
+                "data": "{ \"query\": \"mutation M($input: SignUpUserInput!) { signUpUser(input: $input) { userId firstName authToken } }\", \"variables\": { \"input\": { \"firstName\": \"${firstName1}\", \"lastName\": \"${lastName1}\", \"userHandle\": \"${userHandle1}\", \"email\": \"${email1}\", \"phoneNumber\": \"${phoneNumber1}\", \"password\": \"${password}\" } } }",
+                "response": {
+                  "readVars": [
+                    {
+                      "name": "userId1",
+                      "scope": "suite",
+                      "jsonPath": "$.data.signUpUser.userId"
+                    },
+                    {
+                      "name": "authToken1",
+                      "scope": "suite",
+                      "jsonPath": "$.data.signUpUser.authToken"
+                    }
+                  ],
+                  "checks": [
+                    {
+                      "name": "user.firstName",
+                      "jsonPath": "$.data.signUpUser.firstName",
+                      "dataType": "string",
+                      "targetVar": "firstName1"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "json-http-request",
+                "name": "load-user-1",
+                "enabled": true,
+                "endpoint": "http://localhost:3000/mmdata/api/graphql",
+                "headers": {
+                  "Authorization": "Bearer ${authToken1}",
+                  "x-device": "${deviceUuid1}"
+                },
+                "data": "{ \"query\": \"query { getMyUser { id, userHandle, email } }\" }",
+                "response": {
+                  "checks": [
+                    {
+                      "name": "user.id",
+                      "jsonPath": "$.data.getMyUser.id",
+                      "dataType": "string",
+                      "targetVar": "userId1"
+                    },
+                    {
+                      "name": "user.userHandle",
+                      "jsonPath": "$.data.getMyUser.userHandle",
+                      "dataType": "string",
+                      "targetVar": "userHandle1",
+                      "enabled": false
+                    },
+                    {
+                      "name": "user.email",
+                      "jsonPath": "$.data.getMyUser.email",
+                      "dataType": "string",
+                      "targetVar": "email1"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "json-http-request",
+                "name": "create-user-2",
+                "enabled": true,
+                "waitMilliSecondsAfter": 2000,
+                "endpoint": "http://localhost:3000/mmdata/api/graphql",
+                "headers": {
+                  "Authorization": "Bearer none",
+                  "x-authorization-auth-type": "none",
+                  "x-device": "${deviceUuid2}"
+                },
+                "data": "{ \"query\": \"mutation M($input: SignUpUserInput!) { signUpUser(input: $input) { userId firstName authToken } }\", \"variables\": { \"input\": { \"firstName\": \"${firstName2}\", \"lastName\": \"${lastName2}\", \"userHandle\": \"${userHandle2}\", \"email\": \"${email2}\", \"phoneNumber\": \"${phoneNumber2}\", \"password\": \"${password}\" } } }",
+                "response": {
+                  "readVars": [
+                    {
+                      "name": "userId2",
+                      "scope": "suite",
+                      "jsonPath": "$.data.signUpUser.userId"
+                    },
+                    {
+                      "name": "authToken2",
+                      "scope": "suite",
+                      "jsonPath": "$.data.signUpUser.authToken"
+                    }
+                  ],
+                  "checks": [
+                    {
+                      "name": "user.firstName",
+                      "jsonPath": "$.data.signUpUser.firstName",
+                      "dataType": "string",
+                      "targetVar": "firstName2"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "json-http-request",
+                "name": "load-user-2",
+                "enabled": true,
+                "endpoint": "http://localhost:3000/mmdata/api/graphql",
+                "headers": {
+                  "Authorization": "Bearer ${authToken2}",
+                  "x-device": "${deviceUuid2}"
+                },
+                "data": "{ \"query\": \"query { getMyUser { id, userHandle, email } }\" }",
+                "response": {
+                  "checks": [
+                    {
+                      "name": "user.id",
+                      "jsonPath": "$.data.getMyUser.id",
+                      "dataType": "string",
+                      "targetVar": "userId2"
+                    },
+                    {
+                      "name": "user.userHandle",
+                      "jsonPath": "$.data.getMyUser.userHandle",
+                      "dataType": "string",
+                      "targetVar": "userHandle2",
+                      "enabled": false
+                    },
+                    {
+                      "name": "user.email",
+                      "jsonPath": "$.data.getMyUser.email",
+                      "dataType": "string",
+                      "targetVar": "email2"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "json-http-request",
+                "name": "delete-user-1",
+                "enabled": true,
+                "endpoint": "http://localhost:3000/mmdata/api/graphql",
+                "waitMilliSecondsAfter": 2000,
+                "headers": {
+                  "Authorization": "Bearer ${authToken1}",
+                  "x-device": "${deviceUuid1}"
+                },
+                "data": "{ \"query\": \"mutation M($userId: String!, $deletePhysically: Boolean!) { deleteUser(userId: $userId, deletePhysically: $deletePhysically) }\", \"variables\": { \"userId\": \"${userId1}\", \"deletePhysically\": true } }",
+                "response": {
+                  "checks": [
+                    {
+                      "name": "user.id",
+                      "jsonPath": "$.data.deleteUser",
+                      "dataType": "string",
+                      "targetVar": "userId1"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "json-http-request",
+                "name": "delete-user-2",
+                "enabled": true,
+                "endpoint": "http://localhost:3000/mmdata/api/graphql",
+                "waitMilliSecondsAfter": 2000,
+                "headers": {
+                  "Authorization": "Bearer ${authToken2}",
+                  "x-device": "${deviceUuid2}"
+                },
+                "data": "{ \"query\": \"mutation M($userId: String!, $deletePhysically: Boolean!) { deleteUser(userId: $userId, deletePhysically: $deletePhysically) }\", \"variables\": { \"userId\": \"${userId2}\", \"deletePhysically\": true } }",
+                "response": {
+                  "checks": [
+                    {
+                      "name": "user.id",
+                      "jsonPath": "$.data.deleteUser",
+                      "dataType": "string",
+                      "targetVar": "userId2"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
       "graphql": {
-        "path": "http://localhost:3000/mmdata/api/graphql"
       }
     },
     {
@@ -56,7 +271,9 @@
             "url": "https://bgvault-kz01.baragaun.xyz/status",
             "headers": {
               "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
-              "x-authorization-auth-type": "token"
+              "x-authorization-auth-type": "token",
+              "content-type": "application/json",
+              "accept": "application/json"
             },
             "data": {
               "node": "KZ01"

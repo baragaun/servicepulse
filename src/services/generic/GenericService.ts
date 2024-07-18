@@ -1,5 +1,13 @@
-import { HttpRequestConfig, Service, ServiceConfig, VerifyStatusResult } from '@/definitions'
+import {
+  E2eTestSuite, E2eTestSuiteResult,
+  HttpRequestConfig,
+  Service,
+  ServiceConfig,
+  TestResult,
+  VerifyStatusResult
+} from '@/definitions'
 import { ServiceType } from '@/enums';
+import runE2eTestSuite from '@/services/helpers/e2eTesting/runE2eTestSuite';
 import statusImpl from '@/services/generic/status';
 import verifyStatusHelper from '@/services/helpers/verifyStatus';
 
@@ -31,7 +39,7 @@ export class GenericService implements Service {
   public async verifyStatuses(): Promise<VerifyStatusResult[]> {
     const statuses = await this.statuses();
     return statuses.map((status) => {
-      const requestConfig = this.config.status.requests.find(r => r.url === status.url);
+      const requestConfig = this.config.status.requests.find((r) => r.url === status.url);
 
       if (!requestConfig) {
         console.error('GenericService.verifyStatuses: failed to find requestConfig.');
@@ -50,5 +58,13 @@ export class GenericService implements Service {
         requestConfig,
       )
     });
+  }
+
+  public async runE2ETests(): Promise<E2eTestSuiteResult | undefined> {
+    const e2eTestSuite: E2eTestSuite | undefined = this.config?.e2eTests;
+    if (!e2eTestSuite) {
+      return;
+    }
+    return runE2eTestSuite(e2eTestSuite);
   }
 }

@@ -2,12 +2,12 @@ import jsonpath from 'jsonpath';
 
 import {
   HttpRequestConfig,
-  ServiceStatusCheck,
   ServiceStatusConfig,
-  StatusCheckResult,
+  TestResult,
   VerifyStatusResult,
 } from '@/definitions';
 import { ServiceStatus } from '@/enums';
+import validateValue from '@/services/helpers/validateValue';
 
 // [
 //   {
@@ -122,130 +122,6 @@ import { ServiceStatus } from '@/enums';
 //   }
 // ]
 
-const verifyBooleanCheck = (
-  stringValue: string,
-  config: ServiceStatusCheck,
-  targetValue: boolean,
-) => {
-  if (config.dataType !== 'boolean') {
-    return false;
-  }
-
-  const booleanValue = ['1', 'true', 'yes'].includes(stringValue.toLowerCase());
-
-  if (targetValue) {
-    return booleanValue === targetValue;
-  }
-
-  if (config.targetBooleanValue !== true && config.targetBooleanValue !== false) {
-    console.log('verifyBooleanCheck: missing targetBooleanValue');
-    return false;
-  }
-
-  return booleanValue === config.targetBooleanValue;
-};
-
-const verifyDateCheck = (
-  stringValue: string,
-  config: ServiceStatusCheck,
-  targetValue: Date,
-) => {
-  if (config.dataType !== 'date') {
-    return false;
-  }
-
-  // todo: implement for Date:
-  const booleanValue = ['1', 'true', 'yes'].includes(stringValue.toLowerCase());
-
-  if (targetValue) {
-    return booleanValue === targetValue;
-  }
-
-  if (config.targetBooleanValue !== true && config.targetBooleanValue !== false) {
-    console.log('verifyBooleanCheck: missing targetBooleanValue');
-    return false;
-  }
-
-  return booleanValue === config.targetBooleanValue;
-};
-
-const verifyNumericCheck = (
-  stringValue: string,
-  config: ServiceStatusCheck,
-  targetValue: number,
-) => {
-  if (config.dataType !== 'number') {
-    return false;
-  }
-  const numericValue = Number.parseInt(stringValue);
-
-  if (!numericValue || isNaN(numericValue)) {
-    return false;
-  }
-
-  if (targetValue){
-    return numericValue === targetValue;
-  }
-
-  if (config.minNumericValue && numericValue < config.minNumericValue) {
-    return false;
-  }
-
-  if (config.maxNumericValue && numericValue > config.maxNumericValue) {
-    return false;
-  }
-
-  if (config.targetIntegerValue && numericValue !== config.targetIntegerValue) {
-    return false;
-  }
-  return true;
-};
-
-const verifyStringCheck = (
-  stringValue: string,
-  config: ServiceStatusCheck,
-  targetValue: string,
-) => {
-  if (config.dataType !== 'string') {
-    return false;
-  }
-
-  if (config.targetStringValue && stringValue !== config.targetStringValue) {
-    return false;
-  }
-
-  if (targetValue) {
-    return stringValue === targetValue;
-  }
-
-  if (
-    config.regexExpression &&
-    config.regexFlags &&
-    !stringValue.match(new RegExp(config.regexExpression, config.regexFlags))
-  ) {
-    return false;
-  }
-  return true;
-};
-
-const verifyCheck = (
-  stringValue: string,
-  config: ServiceStatusCheck,
-  targetValue: boolean | Date | number | string,
-) => {
-  switch (config.dataType) {
-    case 'boolean':
-      return verifyBooleanCheck(stringValue, config, targetValue as boolean);
-    case 'date':
-      return verifyDateCheck(stringValue, config, targetValue as Date);
-    case 'number':
-      return verifyNumericCheck(stringValue, config, targetValue as number);
-    case 'string':
-      return verifyStringCheck(stringValue, config, targetValue as string);
-  }
-  return false;
-};
-
 const verifyStatus = (
   serviceName: string,
   status: any,
@@ -272,7 +148,7 @@ const verifyStatus = (
     }
 
     for (let i = 0; i < statusConfig.checks.length; i++) {
-      const checkResult: StatusCheckResult = {
+      const checkResult: TestResult = {
         name: statusConfig.checks[i].name,
         passed: true,
       };
@@ -298,13 +174,18 @@ const verifyStatus = (
         if (!targetVal) {
           checkResult.passed = false;
           checkResult.error = 'variable-not-set';
-        } else if (!verifyCheck(values[0] as any, statusConfig.checks[i], targetVal)) {
+        } else if (
+          !validateValue(checkResult.name, values[0] as any, statusConfig.checks[i], targetVal)
+        ) {
           checkResult.passed = false;
           // checkResult.error = 'value-failed';
         }
       }
 
-      if (checkResult.passed && !verifyCheck(values[0] as any, statusConfig.checks[i])) {
+      if (
+        checkResult.passed &&
+        !validateValue(checkResult.name, values[0] as any, statusConfig.checks[i], undefined)
+      ) {
         checkResult.passed = false;
         // checkResult.error = 'value-failed';
       }

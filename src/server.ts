@@ -4,15 +4,16 @@ import fs from 'fs';
 import helmet from 'helmet';
 import { pino } from 'pino';
 
+import { BgServicePulseConfig } from '@/definitions';
+import { env } from '@/common/utils/envConfig';
+import { ServiceList } from '@/services/ServiceList';
 import appData from '@/appData';
 import errorHandler from '@/common/middleware/errorHandler';
+import initRunE2eTestsRouteRoute from '@/routes/runE2eTestsRoute';
+import initStatusRoute from '@/routes/statusRoute';
+import initVerifyStatusRoute from '@/routes/verifyStatusRoute';
 import rateLimiter from '@/common/middleware/rateLimiter';
 import requestLogger from '@/common/middleware/requestLogger';
-import { env } from '@/common/utils/envConfig';
-import { BgServicePulseConfig } from '@/definitions';
-import initStatusRoute from '@/routes/statusRoute';
-import { ServiceList } from '@/services/ServiceList';
-import initVerifyStatusRoute from '@/routes/verifyStatusRoute'
 
 const logger = pino({ name: 'server start' });
 
@@ -38,6 +39,7 @@ app.use(requestLogger);
 // Routes
 initStatusRoute(app, '/status');
 initVerifyStatusRoute(app, '/verify-status');
+initRunE2eTestsRouteRoute(app, '/e2e-tests');
 
 // Error handlers
 app.use(errorHandler());

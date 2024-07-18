@@ -8,9 +8,7 @@ const status = async (services: Service[]): Promise<any[]> => {
     .filter((service) => service.enabled())
     .map((service) => service.statuses());
 
-  const statuses = (await Promise.all(promises)).flat();
-
-  return statuses;
+  return await Promise.all(promises);
 };
 
 export default status;
