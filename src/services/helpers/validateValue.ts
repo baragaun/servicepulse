@@ -3,7 +3,7 @@ import { JsonValidationCheck, TestResult } from '@/definitions';
 const validateBoolean = (
   testName: string,
   stringValue: string | null | undefined,
-  config: JsonValidationCheck,
+  config: ValidationCheck,
   targetValue: boolean | undefined,
 ): TestResult => {
   if (config.dataType !== 'boolean') {
@@ -67,7 +67,7 @@ const validateBoolean = (
 const validateDate = (
   testName: string,
   stringValue: string | null | undefined,
-  config: JsonValidationCheck,
+  config: ValidationCheck,
   targetValue: Date | undefined,
 ): TestResult => {
   if (config.dataType !== 'date') {
@@ -140,7 +140,7 @@ const validateDate = (
 const validateNumber = (
   testName: string,
   stringValue: string | null | undefined,
-  config: JsonValidationCheck,
+  config: ValidationCheck,
   targetValue: number | undefined,
 ): TestResult => {
   if (config.dataType !== 'number') {
@@ -229,7 +229,7 @@ const validateNumber = (
 const validateString = (
   testName: string,
   stringValue: string | null | undefined,
-  config: JsonValidationCheck,
+  config: ValidationCheck,
   targetValue: string | undefined,
 ): TestResult => {
   if (config.dataType !== 'string') {

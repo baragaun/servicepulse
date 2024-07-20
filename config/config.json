@@ -16,13 +16,15 @@
       "enabled": true,
       "status": {
         "checkEverySeconds": 30,
-        "requests": [{
-          "url": "http://localhost:3000/mmdata/status/max",
-          "headers": {
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
-            "x-authorization-auth-type": "token"
+        "requests": [
+          {
+            "url": "http://localhost:3000/mmdata/status/max",
+            "headers": {
+              "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.NjYyYzhhMWZhZTFiMDE2ZWNjNDQ1YjE5.SHFCWFgCJIiuDoUMDQDiCx7qtbtcgXcb6UhvvYFo7mU",
+              "x-authorization-auth-type": "token"
+            }
           }
-        }],
+        ],
         "checks": [
           {
             "name": "status",
@@ -257,8 +259,7 @@
           }
         ]
       },
-      "graphql": {
-      }
+      "graphql": {}
     },
     {
       "name": "bgvault",

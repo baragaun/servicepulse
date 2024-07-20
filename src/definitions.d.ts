@@ -7,7 +7,7 @@ export interface HttpRequestConfig {
   data?: any;
 }
 
-export interface JsonValidationCheck {
+export interface ValidationCheck {
   name: string;
   jsonPath: string;
   dataType: 'boolean' | 'date' | 'number' | 'string';
@@ -33,7 +33,7 @@ export interface JsonValidationCheck {
   regexFlags?: string;
 }
 
-export interface ServiceStatusCheck extends JsonValidationCheck {
+export interface ServiceStatusCheck extends ValidationCheck {
   statusIfFail: ServiceStatus;
 }
 
@@ -62,8 +62,7 @@ export interface Service {
   runE2ETests: () => Promise<E2eTestSuiteResult | undefined>;
 }
 
-export interface GraphqlServiceConfig extends ServiceConfig {
-}
+export interface HttpApiServiceConfig extends ServiceConfig {}
 
 export interface BgServicePulseConfig {
   services: ServiceConfig[];

@@ -1,6 +1,8 @@
 import { HttpRequestConfig } from '@/definitions';
 
-const fetchJson = async (config: HttpRequestConfig): Promise<{
+const fetchJson = async (
+  config: HttpRequestConfig
+): Promise<{
   response: Response | undefined;
   data?: any;
   error?: string;
@@ -23,9 +25,7 @@ const fetchJson = async (config: HttpRequestConfig): Promise<{
     if (response.status > 399) {
       try {
         const data = await response.text();
-        const error = response.status === 401
-          ? 'unauthorized'
-          : 'server-error';
+        const error = response.status === 401 ? 'unauthorized' : 'server-error';
         return { response, error, data };
       } catch (error) {
         console.error(error);

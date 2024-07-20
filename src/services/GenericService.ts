@@ -3,12 +3,11 @@ import {
   HttpRequestConfig,
   Service,
   ServiceConfig,
-  TestResult,
   VerifyStatusResult
 } from '@/definitions'
 import { ServiceType } from '@/enums';
+import fetchJson from '@/services/helpers/fetchJson';
 import runE2eTestSuite from '@/services/helpers/e2eTesting/runE2eTestSuite';
-import statusImpl from '@/services/generic/status';
 import verifyStatusHelper from '@/services/helpers/verifyStatus';
 
 export class GenericService implements Service {
@@ -27,8 +26,19 @@ export class GenericService implements Service {
     return this.config.enabled;
   }
 
-  protected status(request: HttpRequestConfig): Promise<any> {
-    return statusImpl(this.config, request);
+  protected async status(request: HttpRequestConfig): Promise<any> {
+    if (!this.config) {
+      console.error('GenericService.status: no config');
+      return;
+    }
+
+    const { data } = await fetchJson(request);
+
+    return {
+      service: this.config.name,
+      url: request.url,
+      status: data,
+    };
   }
 
   public statuses(): Promise<any[]> {
