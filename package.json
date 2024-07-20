@@ -1,5 +1,5 @@
 {
-  "name": "bg-service-pulse",
+  "name": "servicepulse",
   "type": "module",
   "version": "0.0.1",
   "description": "A generic service monitor",
