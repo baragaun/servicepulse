@@ -1,13 +1,8 @@
+import { bgE2eTestRunnerHelpers } from '@baragaun/e2e';
 import jsonpath from 'jsonpath';
 
-import {
-  HttpRequestConfig,
-  ServiceStatusConfig,
-  TestResult,
-  VerifyStatusResult,
-} from '@/definitions';
+import { HttpRequestConfig, ServiceStatusConfig, TestResult, VerifyStatusResult } from '@/definitions';
 import { ServiceStatus } from '@/enums';
-import validateValue from '@/services/helpers/validateValue';
 
 // [
 //   {
@@ -126,7 +121,7 @@ const verifyStatus = (
   serviceName: string,
   status: any,
   statusConfig: ServiceStatusConfig,
-  requestConfig: HttpRequestConfig,
+  requestConfig: HttpRequestConfig
 ): VerifyStatusResult => {
   try {
     const result: VerifyStatusResult = {
@@ -175,7 +170,7 @@ const verifyStatus = (
           checkResult.passed = false;
           checkResult.error = 'variable-not-set';
         } else if (
-          !validateValue(checkResult.name, values[0] as any, statusConfig.checks[i], targetVal)
+          !bgE2eTestRunnerHelpers.validateValue(checkResult.name, values[0] as any, statusConfig.checks[i], targetVal)
         ) {
           checkResult.passed = false;
           // checkResult.error = 'value-failed';
@@ -184,7 +179,7 @@ const verifyStatus = (
 
       if (
         checkResult.passed &&
-        !validateValue(checkResult.name, values[0] as any, statusConfig.checks[i], undefined)
+        !bgE2eTestRunnerHelpers.validateValue(checkResult.name, values[0] as any, statusConfig.checks[i], undefined)
       ) {
         checkResult.passed = false;
         // checkResult.error = 'value-failed';

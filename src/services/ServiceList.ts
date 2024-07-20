@@ -1,13 +1,7 @@
-import {
-  BgServicePulseConfig,
-  E2eTestSuiteResult,
-  Service,
-  VerifyStatusResult
-} from '@/definitions'
-import runE2eTestsImpl from '@/services/runE2eTests';
+import { E2eTestSuiteResult } from '@baragaun/e2e';
+
+import { BgServicePulseConfig, Service, VerifyStatusResult } from '@/definitions';
 import serviceFactory from '@/services/serviceFactory';
-import statusImpl from '@/services/status';
-import verifyStatusImpl from '@/services/verifyStatus';
 
 export class ServiceList {
   private readonly appConfig: BgServicePulseConfig;
@@ -20,15 +14,34 @@ export class ServiceList {
       .map((serviceConfig) => serviceFactory(serviceConfig));
   }
 
-  public status(): Promise<any> {
-    return statusImpl(this.services);
+  public async status(): Promise<any> {
+    if (!Array.isArray(this.services) || this.services.length < 1) {
+      return;
+    }
+    const promises = this.services.filter((service) => service.enabled()).map((service) => service.statuses());
+
+    return Promise.all(promises);
   }
 
-  public verifyStatus(): Promise<VerifyStatusResult[]> {
-    return verifyStatusImpl(this.services);
+  public async verifyStatus(): Promise<VerifyStatusResult[]> {
+    if (!Array.isArray(this.services) || this.services.length < 1) {
+      return;
+    }
+    const promises = this.services.filter((service) => service.enabled()).map((service) => service.verifyStatuses());
+
+    return (await Promise.all(promises)).flat();
   }
 
-  public runE2eTests(): Promise<E2eTestSuiteResult[]> {
-    return runE2eTestsImpl(this.services);
+  public async runE2eTests(): Promise<E2eTestSuiteResult[]> {
+    if (!Array.isArray(this.services) || this.services.length < 1) {
+      return;
+    }
+    const promises = this.services
+      .filter((service) => service.enabled() && service.config?.e2eTests)
+      .map((service) => service.runE2ETests());
+
+    const result: (E2eTestSuiteResult | undefined)[] = (await Promise.all(promises)).flat();
+
+    return result.filter((r) => r) as E2eTestSuiteResult[];
   }
 }

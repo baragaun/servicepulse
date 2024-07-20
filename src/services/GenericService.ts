@@ -1,14 +1,9 @@
-import {
-  E2eTestSuite, E2eTestSuiteResult,
-  HttpRequestConfig,
-  Service,
-  ServiceConfig,
-  VerifyStatusResult
-} from '@/definitions'
+import { bgE2eTestRunnerHelpers, BgE2eTestSuite, E2eTestSuiteConfig, E2eTestSuiteResult } from '@baragaun/e2e';
+
+import { HttpRequestConfig, Service, ServiceConfig, VerifyStatusResult } from '@/definitions';
 import { ServiceType } from '@/enums';
-import fetchJson from '@/services/helpers/fetchJson';
-import runE2eTestSuite from '@/services/helpers/e2eTesting/runE2eTestSuite';
-import verifyStatusHelper from '@/services/helpers/verifyStatus';
+
+import verifyStatusHelper from './helpers/verifyStatus';
 
 export class GenericService implements Service {
   public type = ServiceType.generic;
@@ -32,7 +27,7 @@ export class GenericService implements Service {
       return;
     }
 
-    const { data } = await fetchJson(request);
+    const { data } = await bgE2eTestRunnerHelpers.fetchJson(request);
 
     return {
       service: this.config.name,
@@ -53,28 +48,19 @@ export class GenericService implements Service {
 
       if (!requestConfig) {
         console.error('GenericService.verifyStatuses: failed to find requestConfig.');
-        return verifyStatusHelper(
-          this.config.name,
-          status,
-          this.config.status,
-          { url: status.url },
-        )
+        return verifyStatusHelper(this.config.name, status, this.config.status, { url: status.url });
       }
 
-      return verifyStatusHelper(
-        this.config.name,
-        status,
-        this.config.status,
-        requestConfig,
-      )
+      return verifyStatusHelper(this.config.name, status, this.config.status, requestConfig);
     });
   }
 
   public async runE2ETests(): Promise<E2eTestSuiteResult | undefined> {
-    const e2eTestSuite: E2eTestSuite | undefined = this.config?.e2eTests;
-    if (!e2eTestSuite) {
+    const config: E2eTestSuiteConfig | undefined = this.config?.e2eTests;
+    if (!config) {
       return;
     }
-    return runE2eTestSuite(e2eTestSuite);
+    const suite = new BgE2eTestSuite(config);
+    return suite.run();
   }
 }
