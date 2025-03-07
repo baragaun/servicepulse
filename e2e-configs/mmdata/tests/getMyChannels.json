@@ -1,0 +1,13 @@
+{
+  "type": "graphql-request",
+  "name": "getMyChannels",
+  "headers": {
+    "Authorization": "Bearer ${authTokens}",
+    "x-device": "${deviceUuid}"
+  },
+  "data": "${file:config/cicd/data/getMyChannels.json}",
+  "assignVars": [
+  ],
+  "checks": [
+  ]
+}

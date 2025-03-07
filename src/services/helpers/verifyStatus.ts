@@ -1,8 +1,13 @@
-import { bgE2eTestRunnerHelpers } from '@baragaun/e2e';
-import jsonpath from 'jsonpath';
+import { bgE2eTestRunnerHelpers, TestResult } from "@baragaun/e2e";
+import jsonpath from "jsonpath";
 
-import { HttpRequestConfig, ServiceStatusConfig, TestResult, VerifyStatusResult } from '@/definitions';
-import { ServiceStatus } from '@/enums';
+import { ServiceStatus } from "@/enums";
+import type {
+  HttpRequestConfig,
+  ServiceStatusCheckConfig,
+  // TestResult,
+  VerifyStatusResult,
+} from "@/types";
 
 // [
 //   {
@@ -120,24 +125,25 @@ import { ServiceStatus } from '@/enums';
 const verifyStatus = (
   serviceName: string,
   status: any,
-  statusConfig: ServiceStatusConfig,
-  requestConfig: HttpRequestConfig
+  statusConfig: ServiceStatusCheckConfig,
+  requestConfig: HttpRequestConfig,
 ): VerifyStatusResult => {
-  try {
-    const result: VerifyStatusResult = {
-      serviceName,
-      url: status.url,
-      newStatus: ServiceStatus.ok,
-      checks: [],
-    };
+  const result: VerifyStatusResult = {
+    serviceName,
+    url: status.url,
+    newStatus: ServiceStatus.ok,
+    checks: [],
+    createdAt: new Date(),
+  };
 
+  try {
     if (!status) {
-      console.error('verifyStatus: no status given');
+      console.error("verifyStatus: no status given");
       result.newStatus = ServiceStatus.offline;
       return result;
     }
     if (!statusConfig) {
-      console.error('verifyStatus: no statusConfig given');
+      console.error("verifyStatus: no statusConfig given");
       result.newStatus = ServiceStatus.offline;
       return result;
     }
@@ -148,27 +154,27 @@ const verifyStatus = (
         passed: true,
       };
 
-      let values: string[];
+      let values: string[] = [];
       try {
         values = jsonpath.query(status, statusConfig.checks[i].jsonPath);
       } catch (error) {
         console.error(error);
         checkResult.passed = false;
-        checkResult.error = 'jsonpath-failed';
+        checkResult.error = "jsonpath-failed";
       }
 
       if (checkResult.passed) {
         if (!Array.isArray(values) || values.length != 1) {
           checkResult.passed = false;
-          checkResult.error = 'value-not-found';
+          checkResult.error = "value-not-found";
         }
       }
 
       if (checkResult.passed && statusConfig.checks[i].targetVar) {
-        const targetVal = requestConfig.data[statusConfig.checks[i].targetVar];
+        const targetVal = requestConfig.data[statusConfig.checks[i].targetVar as string];
         if (!targetVal) {
           checkResult.passed = false;
-          checkResult.error = 'variable-not-set';
+          checkResult.error = "variable-not-set";
         } else if (
           !bgE2eTestRunnerHelpers.validateValue(checkResult.name, values[0] as any, statusConfig.checks[i], targetVal)
         ) {
@@ -197,11 +203,11 @@ const verifyStatus = (
 
       result.checks.push(checkResult);
     }
-
-    return result;
   } catch (error) {
     console.error(error);
   }
+
+  return result;
 };
 
 export default verifyStatus;

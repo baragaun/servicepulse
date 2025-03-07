@@ -1,0 +1,13 @@
+{
+  "query": "${file:config/graphql/mutations/signUpUser.graphql}",
+  "variables": {
+    "input": {
+      "firstName": "${firstNames}",
+      "lastName": "${lastNames}",
+      "userHandle": "${userHandles}",
+      "email": "${emails}",
+      "phoneNumber": "${phoneNumbers}",
+      "password": "${password}"
+    }
+  }
+}

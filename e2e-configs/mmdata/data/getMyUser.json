@@ -1,0 +1,3 @@
+{
+  "query": "${file:config/graphql/queries/getMyUser.graphql}"
+}

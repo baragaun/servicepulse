@@ -1,0 +1,115 @@
+{
+  "vars": [
+    { "name": "userCount", "dataType": "number", "value": 3 },
+    { "name": "userIds", "dataType": "stringArray" },
+    { "name": "invitationIds", "dataType": "stringArray" },
+    { "name": "channelIds", "dataType": "stringArray" },
+    { "name": "channelMessageIds", "dataType": "stringArray" },
+    { "name": "firstNames", "dataType": "stringArray", "fill": 3, "fillVal": "${rand:firstName}" },
+    { "name": "lastNames", "dataType": "stringArray", "fill": 3, "fillVal": "${rand:lastName}" },
+    { "name": "userHandles", "dataType": "stringArray", "fill": 3, "fillVal": "e2etest-${idx}" },
+    { "name": "emails", "dataType": "stringArray", "fill": 3, "fillVal": "e2etest-${idx}@baragaun.com" },
+    { "name": "phoneNumbers", "dataType": "stringArray", "fill": 3, "fillVal": "${rand:phoneNumber}" },
+    { "name": "authTokens", "dataType": "stringArray" },
+    { "name": "deviceUuids", "dataType": "stringArray", "fill": 3, "fillVal": "${rand:uuid}" },
+    { "name": "password", "dataType": "string", "value": "test1234" }
+  ],
+  "endpoint-remote": "https://mmdata-dev.micromentor.org/mmdata/api/graphql",
+  "endpoint": "http://localhost:3000/mmdata/api/graphql",
+  "method": "POST",
+  "headers": {
+    "content-type": "application/json",
+    "accept": "application/json"
+  },
+  "hidePassed": true,
+  "returnVars": true,
+  "sequences": [
+    {
+      "import": "config/cicd/sessions/createMultipleUsers.json"
+    },
+    {
+      "name": "create-channel-1",
+      "tests": [
+        {
+          "import": "config/cicd/tests/createChannelInvitation.json",
+          "description": "An entrepreneur sends an invitation to a mentor.",
+          "vars": [
+            { "name": "createdBy", "dataType": "string", "value": "${userIds[0]}" },
+            { "name": "deviceUuid", "dataType": "string", "value": "${deviceUuids[0]}" },
+            { "name": "recipientId", "dataType": "string", "value": "${userIds[1]}" }
+          ],
+          "assignVars": [
+            {
+              "name": "invitationIds[0]",
+              "jsonPath": "$.data.createChannelInvitation.id"
+            }
+          ]
+        },
+        {
+          "import": "config/cicd/tests/acceptChannelInvitation.json",
+          "description": "The mentor accepts the invitation.",
+          "vars": [
+            { "name": "invitationId", "dataType": "string", "value": "${invitationIds[0]}" },
+            { "name": "authToken", "dataType": "string", "value": "${authTokens[1]}" },
+            { "name": "deviceUuid", "dataType": "string", "value": "${deviceUuids[1]}" }
+          ]
+        },
+        {
+          "import": "config/cicd/tests/findChannelInvitationById.json",
+          "description": "Loading the invitation to retrieve the channelId.",
+          "vars": [
+            { "name": "invitationId", "dataType": "string", "value": "${invitationIds[0]}" },
+            { "name": "authToken", "dataType": "string", "value": "${authTokens[1]}" },
+            { "name": "deviceUuid", "dataType": "string", "value": "${deviceUuids[1]}" }
+          ],
+          "assignVars": [
+            {
+              "name": "channelIds[0]",
+              "jsonPath": "$.data.findChannelInvitationById.channelId"
+            }
+          ]
+        },
+        {
+          "import": "config/cicd/tests/createChannelMessage.json",
+          "description": "The mentor sends the entrepreneur a response to the invitation.",
+          "vars": [
+            { "name": "channelId", "dataType": "string", "value": "${channelIds[0]}" },
+            { "name": "createdBy", "dataType": "string", "value": "${userIds[1]}" },
+            { "name": "authToken", "dataType": "string", "value": "${authTokens[1]}" },
+            { "name": "deviceUuid", "dataType": "string", "value": "${deviceUuids[1]}" }
+          ],
+          "assignVars": [
+            {
+              "name": "channelMessageIds[0]",
+              "jsonPath": "$.data.createChannelMessage.id"
+            }
+          ]
+        },
+        {
+          "import": "config/cicd/tests/createChannelMessage.json",
+          "description": "The entrepreneur sends the mentor a message back.",
+          "vars": [
+            { "name": "channelId", "dataType": "string", "value": "${channelIds[0]}" },
+            { "name": "createdBy", "dataType": "string", "value": "${userIds[0]}" },
+            { "name": "authToken", "dataType": "string", "value": "${authTokens[0]}" },
+            { "name": "deviceUuid", "dataType": "string", "value": "${deviceUuids[0]}" }
+          ],
+          "assignVars": [
+            {
+              "name": "channelMessageIds[1]",
+              "jsonPath": "$.data.createChannelMessage.id"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cleanup",
+      "tests": [
+        {
+          "import": "config/cicd/tests/deleteUsers.json"
+        }
+      ]
+    }
+  ]
+}

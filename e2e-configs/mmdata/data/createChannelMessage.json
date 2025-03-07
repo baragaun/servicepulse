@@ -1,0 +1,10 @@
+{
+  "query": "${file:config/graphql/mutations/createChannelMessage.graphql}",
+  "variables": {
+    "input": {
+      "createdBy": "${createdBy}",
+      "messageText": "${rand:sentence}",
+      "channelId": "${channelId}"
+    }
+  }
+}

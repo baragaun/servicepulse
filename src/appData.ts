@@ -1,4 +1,4 @@
-import { ServiceList } from '@/services/ServiceList';
+import type { ServiceList } from "@/services/ServiceList";
 
 let serviceList: ServiceList | undefined;
 

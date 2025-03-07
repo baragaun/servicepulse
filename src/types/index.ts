@@ -1,10 +1,10 @@
-import { E2eTestSuiteConfig, E2eTestSuiteResult, TestResult, ValidationCheck } from '@baragaun/e2e';
+import { E2eTestSuiteConfig, type E2eTestSuiteResult, type TestResult, type ValidationCheck } from "@baragaun/e2e";
 
-import { ServiceStatus, ServiceType } from '@/enums';
+import type { ServiceStatus, ServiceType } from "@/enums";
 
 export interface HttpRequestConfig {
   url: string;
-  method?: 'GET' | 'POST';
+  method?: "GET" | "POST";
   headers?: { [key: string]: string };
   data?: any;
 }
@@ -13,32 +13,31 @@ export interface ServiceStatusCheck extends ValidationCheck {
   statusIfFail: ServiceStatus;
 }
 
-export interface ServiceStatusConfig {
+export interface ServiceStatusCheckConfig {
   requests: HttpRequestConfig[];
   checkEverySeconds: number;
   checks: ServiceStatusCheck[];
 }
 
 export interface ServiceConfig {
-  endpoint: string;
   name: string;
   type: ServiceType;
   enabled: boolean;
-  status: ServiceStatusConfig;
+  endpoint: string;
+  statusCheckConfig?: ServiceStatusCheckConfig;
   serviceStatusPath: string;
-  e2eTests?: E2eTestSuiteConfig;
 }
 
 export interface Service {
   config: ServiceConfig;
   name(): string;
-  enabled: () => boolean;
   statuses: () => Promise<any[]>;
   verifyStatuses: () => Promise<VerifyStatusResult[]>;
-  runE2ETests: () => Promise<E2eTestSuiteResult | undefined>;
+  runE2ETests?: () => Promise<E2eTestSuiteResult | undefined>;
 }
 
 export interface HttpApiServiceConfig extends ServiceConfig {}
+export interface SecureIdServiceConfig extends ServiceConfig {}
 
 export interface BgServicePulseConfig {
   services: ServiceConfig[];
@@ -49,4 +48,5 @@ export interface VerifyStatusResult {
   url: string;
   checks: TestResult[];
   newStatus: ServiceStatus;
+  createdAt: Date;
 }
