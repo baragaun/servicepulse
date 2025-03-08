@@ -2,6 +2,10 @@ import { E2eTestSuiteConfig, type E2eTestSuiteResult, type TestResult, type Vali
 
 import type { ServiceStatus, ServiceType } from "@/enums";
 
+export interface ServicePulseConfig {
+  services: ServiceConfig[];
+}
+
 export interface HttpRequestConfig {
   url: string;
   method?: "GET" | "POST";
@@ -21,6 +25,9 @@ export interface ServiceStatusCheckConfig {
 
 export interface ServiceConfig {
   name: string;
+  configPath: string;
+  e2eCronConfig: string;
+  statusCronConfig: string;
   type: ServiceType;
   enabled: boolean;
   endpoint: string;
@@ -31,17 +38,14 @@ export interface ServiceConfig {
 export interface Service {
   config: ServiceConfig;
   name(): string;
+  enabled(): boolean;
   statuses: () => Promise<any[]>;
-  verifyStatuses: () => Promise<VerifyStatusResult[]>;
+  verifyStatuses?: () => Promise<VerifyStatusResult[]>;
   runE2ETests?: () => Promise<E2eTestSuiteResult | undefined>;
 }
 
 export interface HttpApiServiceConfig extends ServiceConfig {}
 export interface SecureIdServiceConfig extends ServiceConfig {}
-
-export interface BgServicePulseConfig {
-  services: ServiceConfig[];
-}
 
 export interface VerifyStatusResult {
   serviceName: string;

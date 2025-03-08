@@ -1,5 +1,10 @@
 import { ServiceType } from "@/enums";
-import type { HttpRequestConfig, Service, ServiceConfig, VerifyStatusResult } from "@/types";
+import type {
+  HttpRequestConfig,
+  Service,
+  ServiceConfig,
+  VerifyStatusResult,
+} from "@/types";
 import {
   BgE2eTestSuite,
   type E2eTestSuiteConfig,
@@ -10,9 +15,9 @@ import loadE2eConfig from "./helpers/loadE2eConfig";
 import verifyStatusHelper from "./helpers/verifyStatus";
 
 export class GenericService implements Service {
-  public type = ServiceType.generic;
+  public serviceType = ServiceType.generic;
   public readonly config: ServiceConfig;
-  private e2eConfig?: E2eTestSuiteConfig | null;
+  protected e2eConfig: E2eTestSuiteConfig | undefined;
 
   public constructor(serviceConfig: ServiceConfig) {
     this.config = serviceConfig;
@@ -49,7 +54,8 @@ export class GenericService implements Service {
     ) {
       return [];
     }
-    const promises = this.config.statusCheckConfig.requests.map((request) => this.status(request));
+    const promises = this.config.statusCheckConfig
+      .requests.map((request) => this.status(request));
     return Promise.all(promises);
   }
 
@@ -78,11 +84,14 @@ export class GenericService implements Service {
     if (!this.e2eConfig) {
       return;
     }
-    const config: E2eTestSuiteConfig | undefined = this.e2eConfig;
-    if (!config) {
+
+    const suite = new BgE2eTestSuite(this.e2eConfig);
+
+    if (!suite) {
+      console.error("GenericService.runE2ETests: failed to create suite.");
       return;
     }
-    const suite = new BgE2eTestSuite(config);
+
     return suite.run();
   }
 }

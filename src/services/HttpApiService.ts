@@ -6,7 +6,7 @@ import type { HttpApiServiceConfig } from "@/types";
 import { GenericService } from "./GenericService";
 
 export class HttpApiService extends GenericService {
-  public type = ServiceType.graphql;
+  public readonly serviceType = ServiceType.graphql;
   public readonly config: HttpApiServiceConfig;
   // private graphqlClient: GraphQLClient | undefined;
 

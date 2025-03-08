@@ -1,12 +1,12 @@
-import type { ServiceList } from "@/services/ServiceList";
+import type { ServicePulse } from "@/servicePulse/ServicePulse";
 
-let serviceList: ServiceList | undefined;
+let _servicePulse: ServicePulse | undefined;
 
 const appData = {
-  setServiceList: (list: ServiceList) => {
-    serviceList = list;
+  setServicePulse: (servicePulse: ServicePulse): void => {
+    _servicePulse = servicePulse;
   },
-  getServices: () => serviceList,
+  getServicePulse: (): ServicePulse | undefined => _servicePulse,
 };
 
 export default appData;

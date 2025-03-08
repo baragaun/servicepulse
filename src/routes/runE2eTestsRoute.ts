@@ -4,15 +4,15 @@ import appData from "@/appData";
 
 const initRunE2eTestsRouteRoute = (app: Express, path: string) => {
   app.get(path, (_req: Request, res: Response) => {
-    const services = appData.getServices();
+    const servicePulse = appData.getServicePulse();
 
-    if (!services) {
+    if (!servicePulse) {
       // res.setHeader('Content-Type', 'application/json');
       res.end("error");
       return;
     }
 
-    services.runE2eTests().then((status) => {
+    servicePulse.runE2eTests().then((status) => {
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(status));
     });

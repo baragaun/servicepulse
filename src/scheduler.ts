@@ -7,7 +7,6 @@ export class Scheduler {
   // @param jobName Name of the job
   // @param cronExpression Cron string (e.g., '*/5 * * * *' for every 5 minutes)
   // @param task The function to execute
-
   public scheduleJob(jobName: string, cronExpression: string, task: () => void): void {
     if (this.jobs.has(jobName)) {
       console.error(`Job "${jobName}" already exists.`);
@@ -34,5 +33,3 @@ export class Scheduler {
     }
   }
 }
-
-export const scheduler = new Scheduler();

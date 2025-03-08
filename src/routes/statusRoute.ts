@@ -4,15 +4,15 @@ import appData from "@/appData";
 
 const initStatusRoute = (app: Express, path: string) => {
   app.get(path, (_req: Request, res: Response) => {
-    const services = appData.getServices();
+    const servicePulse = appData.getServicePulse();
 
-    if (!services) {
+    if (!servicePulse) {
       // res.setHeader('Content-Type', 'application/json');
       res.end("error");
       return;
     }
 
-    services.status().then((status) => {
+    servicePulse.verifyStatus().then((status) => {
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(status));
     });
