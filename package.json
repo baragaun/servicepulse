@@ -78,7 +78,6 @@
   "tsup": {
     "entry": [
       "src",
-      "!src/**/__tests__/**",
       "!src/**/*.test.*"
     ],
     "splitting": false,
