@@ -1,9 +1,0 @@
-{
-  "query": "${file:config/graphql/mutations/updateChannelInvitation.graphql}",
-  "variables": {
-    "input": {
-      "id": "${invitationId}",
-      "status": "accepted"
-    }
-  }
-}

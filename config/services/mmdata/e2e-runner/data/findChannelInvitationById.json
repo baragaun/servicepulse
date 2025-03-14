@@ -1,6 +1,0 @@
-{
-  "query": "${file:config/graphql/queries/findChannelInvitationById.graphql}",
-  "variables": {
-    "invitationId": "${invitationId}"
-  }
-}

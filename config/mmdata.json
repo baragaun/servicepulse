@@ -1,0 +1,15 @@
+{
+  "name": "mmdata",
+  "type": "bgdata",
+  "enabled": true,
+  "status": {
+    "url": "https://mmdata.micromentor.org/mmdata/status/max",
+    "schedule.DISABLED": "* * * * *"
+  },
+  "api": {
+    "url": "http://localhost:8092/fsdata/api/graphql",
+    "schedule.DISABLED": "* * * * *"
+  },
+  "isBgService": true,
+  "alertInterval": 60000
+}

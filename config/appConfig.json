@@ -1,8 +1,0 @@
-{
-  "services": [
-    {
-      "name": "mmdata",
-      "path": "services/mmdata/config.json"
-    }
-  ]
-}

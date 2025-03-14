@@ -1,7 +1,0 @@
-{
-  "query": "${file:config/graphql/mutations/deleteUser.graphql}",
-  "variables": {
-    "userId": "${userIds}",
-    "deletePhysically": true
-  }
-}
