@@ -1,4 +1,4 @@
-import { logger } from './logger.ts'
+import { logger } from './logger.js'
 
 const fetchJsonData = async (url: string): Promise<any> => {
   const response = await fetch(url);

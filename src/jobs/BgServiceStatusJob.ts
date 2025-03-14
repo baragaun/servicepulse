@@ -1,10 +1,10 @@
-import { ServiceHealth } from '../enums.ts'
-import fetchJsonData from '../helpers/fetchJsonData.ts'
-import { logger } from '../helpers/logger.ts'
-import { ServiceConfig } from '../types/index.ts'
-import { Job } from '../types/Job.ts';
+import { ServiceHealth } from '../enums.js';
+import { BaseJob } from './BaseJob.js';
+import fetchJsonData from '../helpers/fetchJsonData.js';
+import { logger } from '../helpers/logger.js';
+import { ServiceConfig } from '../types/index.js';
 
-export class BgServiceStatusJob extends Job {
+export class BgServiceStatusJob extends BaseJob {
   public async run(): Promise<void> {
     let json: any | undefined = undefined;
 

@@ -1,7 +1,16 @@
 import schedule from 'node-schedule';
 
-import { logger } from './logger.ts';
+import { logger } from '../../helpers/logger.js';
 
+const _cronExpressions = {
+  everyMinute: '* * * * *',
+  every10Minutes: '*/10 * * * *',
+  every30Minutes: '*/30 * * * *',
+  midnight: '0 0 * * *',
+  hourly: '0 * * * *',
+  daily: '0 0 * * *',
+  weekly: '0 0 * * 0', // Sunday at midnight
+}
 /**
  * Job callback function type
  */
@@ -19,24 +28,6 @@ export class JobScheduler {
   constructor() {
     this.jobs = new Map<string, schedule.Job>();
     logger.info('Job scheduler initialized');
-  }
-
-  /**
-   * Schedule a job to run every minute
-   * @param jobName Unique name for the job
-   * @param callback Function to execute
-   */
-  public scheduleEveryMinute(jobName: string, callback: JobCallback): void {
-    try {
-      const job = schedule.scheduleJob('* * * * *', () => {
-        this.executeJob(jobName, callback);
-      });
-
-      this.registerJob(jobName, job);
-    } catch (error) {
-      logger.error(`Failed to schedule job ${jobName}:`, error);
-      throw error;
-    }
   }
 
   /**
@@ -123,15 +114,23 @@ export class JobScheduler {
    * @param cronExpression Cron expression (e.g., '0 0 * * *' for midnight)
    * @param callback Function to execute
    */
-  public scheduleCron(jobName: string, cronExpression: string, callback: JobCallback): void {
+  public scheduleCron(
+    jobName: string,
+    cronExpression: string,
+    callback: JobCallback,
+  ): void {
     try {
+      if (Object.keys(_cronExpressions).includes(cronExpression)) {
+        cronExpression = _cronExpressions[cronExpression as keyof typeof _cronExpressions];
+      }
       const job = schedule.scheduleJob(cronExpression, () => {
         this.executeJob(jobName, callback);
       });
 
       this.registerJob(jobName, job);
+      logger.info(`JobScheduler.scheduleCron: Registered job ${jobName}:`);
     } catch (error) {
-      logger.error(`Failed to schedule job ${jobName}:`, error);
+      logger.error(`JobScheduler.scheduleCron: Failed to schedule job ${jobName}:`, error);
       throw error;
     }
   }
@@ -139,20 +138,24 @@ export class JobScheduler {
   /**
    * Cancel a specific job by name
    * @param jobName Name of the job to cancel
+   * @param warnIfNotFound set to true to produce a warning if job not found
    * @returns true if job was found and cancelled, false otherwise
    */
-  public cancelJob(jobName: string): boolean {
+  public cancelJob(jobName: string, warnIfNotFound: boolean): boolean {
     const job = this.jobs.get(jobName);
 
-    if (job) {
-      job.cancel();
-      this.jobs.delete(jobName);
-      logger.info(`Job ${jobName} cancelled`);
-      return true;
+    if (!job) {
+      if (warnIfNotFound) {
+        logger.warn(`JobScheduler.cancelJob: Job ${jobName} not found`);
+      }
+      return false;
     }
 
-    logger.warn(`Job ${jobName} not found`);
-    return false;
+    job.cancel();
+    this.jobs.delete(jobName);
+    logger.info(`Job ${jobName} cancelled`);
+
+    return true;
   }
 
   /**
@@ -161,11 +164,11 @@ export class JobScheduler {
   public cancelAllJobs(): void {
     for (const [jobName, job] of this.jobs.entries()) {
       job.cancel();
-      logger.info(`Job ${jobName} cancelled`);
+      logger.info(`JobScheduler.cancelJob: Job ${jobName} cancelled`);
     }
 
     this.jobs.clear();
-    logger.info('All jobs cancelled');
+    logger.info('JobScheduler.cancelJob: All jobs cancelled');
   }
 
   /**
@@ -183,11 +186,11 @@ export class JobScheduler {
    */
   private registerJob(jobName: string, job: schedule.Job): void {
     // Cancel existing job with the same name if it exists
-    this.cancelJob(jobName);
+    this.cancelJob(jobName, false);
 
     // Register new job
     this.jobs.set(jobName, job);
-    logger.info(`Job ${jobName} scheduled successfully`);
+    logger.info(`JobScheduler.registerJob: Job ${jobName} scheduled successfully`);
   }
 
   /**
@@ -197,11 +200,11 @@ export class JobScheduler {
    */
   private executeJob(jobName: string, callback: JobCallback): void {
     try {
-      logger.info(`Executing job: ${jobName}`);
+      logger.info(`JobScheduler.executeJob: Executing job: ${jobName}`);
       callback();
-      logger.info(`Job ${jobName} completed successfully`);
+      logger.info(`JobScheduler.executeJob: Job ${jobName} completed successfully`);
     } catch (error) {
-      logger.error(`Error executing job ${jobName}:`, error);
+      logger.error(`JobScheduler.executeJob: Error executing job ${jobName}:`, error);
     }
   }
 }

@@ -1,12 +1,12 @@
-import { BaseService } from "../BaseService.js";
+import { BaseService } from '../services/BaseService.js';
 
-export abstract class Job {
+export abstract class BaseJob {
   protected _service: BaseService;
 
   public constructor(service: BaseService) {
     this._service = service;
   }
 
-  public init(): Promise<Job> { return Promise.resolve(this); }
+  public init(): Promise<BaseJob> { return Promise.resolve(this); }
   public abstract run(): Promise<void>;
 }

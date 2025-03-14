@@ -8,7 +8,7 @@ export const logger = {
    * @param optionalParams Additional parameters
    */
   info(message: string, ...optionalParams: unknown[]): void {
-    console.log(`[INFO] ${new Date().toISOString()} - ${message}`, ...optionalParams);
+    logger.debug(`[INFO] ${new Date().toISOString()} - ${message}`, ...optionalParams);
   },
 
   /**
@@ -38,5 +38,5 @@ export const logger = {
     if (process.env.DEBUG === 'true') {
       console.debug(`[DEBUG] ${new Date().toISOString()} - ${message}`, ...optionalParams);
     }
-  }
+  },
 };

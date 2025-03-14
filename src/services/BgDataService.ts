@@ -5,14 +5,12 @@ import {
   HttpHeaderName,
 } from '@baragaun/bg-node-client';
 
-// import { ServiceHealth } from '../enums.ts';
-import appStore from '../appStore.ts';
-import { BaseService } from '../BaseService.ts';
-import { logger } from '../helpers/logger.ts';
-import mailer from '../helpers/mailer.ts';
-import { BgServiceE2eJob } from '../jobs/BgServiceE2eJob.ts';
-import { BgServiceStatusJob } from '../jobs/BgServiceStatusJob.ts';
-import { ServiceConfig } from '../types/index.ts';
+import appStore from '../appStore.js';
+import { BaseService } from './BaseService.js';
+import { logger } from '../helpers/logger.js';
+import { BgServiceE2eJob } from '../jobs/BgServiceE2eJob.js';
+import { BgServiceStatusJob } from '../jobs/BgServiceStatusJob.js';
+import { ServiceConfig } from '../types/index.js';
 
 export class BgDataService extends BaseService {
   protected _bgNodeClient?: BgNodeClient;
@@ -42,23 +40,21 @@ export class BgDataService extends BaseService {
     const scheduler = appStore.jobScheduler();
 
     if (this._config.status.schedule) {
-      // Schedule some example jobs
       scheduler.scheduleCron(`${this._config.name}.status`, this._config.status.schedule, () => {
         const job = new BgServiceStatusJob(this);
         job.run().catch((err: Error) => {
           logger.error(`Error in job ${this._config.name}:`, err);
-          mailer.send();
+          // mailer.send();
         });
       });
     }
 
     if (this._config.api.schedule) {
-      // Schedule some example jobs
       scheduler.scheduleCron(`${this._config.name}.api`, this._config.api.schedule, () => {
         const job = new BgServiceE2eJob(this);
         job.run().catch((err: Error) => {
           logger.error(`Error in job ${this._config.name}:`, err);
-          mailer.send();
+          // mailer.send();
         });
       });
     }

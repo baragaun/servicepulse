@@ -4,12 +4,13 @@
   "enabled": true,
   "status": {
     "url": "https://mmdata.micromentor.org/mmdata/status/max",
-    "schedule.DISABLED": "* * * * *"
+    "schedule": "everyMinute"
   },
   "api": {
     "url": "http://localhost:8092/fsdata/api/graphql",
-    "schedule.DISABLED": "* * * * *"
+    "schedule": "every30Minutes"
   },
   "isBgService": true,
-  "alertInterval": 60000
+  "alertIntervalInMinutes": 60,
+  "alertRecipients": ["holger+test@micromentor.org"]
 }

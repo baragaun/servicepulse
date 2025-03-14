@@ -1,13 +1,13 @@
-// src/test/mailer.spec.ts
 import nodemailer from 'nodemailer';
 
-import mailer from '../helpers/mailer.ts';
+import appStore from '../appStore.js';
+import loadServices from '../services/helpers/loadServices.js';
 
 jest.mock('nodemailer');
 
-describe('Mailer', () => {
-  beforeAll(() => {
-    mailer.init();
+describe('alertNotifier', () => {
+  beforeAll(async () => {
+    await loadServices();
   });
 
   it('should send an email', async () => {
@@ -19,14 +19,18 @@ describe('Mailer', () => {
       (nodemailer.createTransport as jest.Mock).mockReturnValue({ sendMail: sendMailMock });
     }
 
-    await mailer.send();
+    const service = appStore.service('mmdata');
+
+    expect(service).toBeDefined();
+
+    service!.sendAlert();
 
     if (mock) {
       expect(sendMailMock).toHaveBeenCalled();
       expect(sendMailMock).toHaveBeenCalledWith({
         from: '"Servicepulse" <holger@baragaun.com>',
         to: 'holger@baragaun.com',
-        subject: 'Servicepulse Alert',
+        subject: `Service alert for ${service!.name}`,
         text: 'Hello world?',
       });
     }

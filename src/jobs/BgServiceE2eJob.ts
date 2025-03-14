@@ -2,15 +2,15 @@ import {
   BgNodeClient,
   BgNodeClientConfig,
   DbType,
-  HttpHeaderName
+  HttpHeaderName,
 } from '@baragaun/bg-node-client';
 
-import { Job } from '../types/Job.ts';
+import { BaseJob } from './BaseJob.js';
 
-export class BgServiceE2eJob extends Job {
+export class BgServiceE2eJob extends BaseJob {
   private _bgNodeClient?: BgNodeClient;
 
-  public async init(): Promise<Job> {
+  public async init(): Promise<BaseJob> {
     if (this._bgNodeClient) {
       return this;
     }

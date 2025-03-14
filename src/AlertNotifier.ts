@@ -1,44 +1,24 @@
-import sesClientModule from '@aws-sdk/client-ses';
+import sesClientModule, { SES } from '@aws-sdk/client-ses';
 import nodemailer from 'nodemailer';
 
-import { logger } from './helpers/logger.ts'
-import { ServiceConfig } from './types/index.ts'
+import { logger } from './helpers/logger.js'
+import { ServiceConfig } from './types/index.js'
 
 export class AlertNotifier {
-  protected _transporter: nodemailer.Transporter | undefined;
-  protected _recipients: string[] = [];
-
-  public constructor() {
-    const awsSesAccessKeyId = process.env.AWS_SES_ACCESS_KEY_ID ?? '';
-    const awsSesSecretAccessKey = process.env.AWS_SES_SECRET_ACCESS_KEY ?? '';
-    const awsSesRegion = process.env.AWS_SES_REGION ?? '';
-    this._recipients = (process.env.EMAIL_RECIPIENTS || '').split('|');
-
-    const awsOptions = {
-      apiVersion: '2010-12-01',
-      region: awsSesRegion,
-      credentials: {
-        accessKeyId: awsSesAccessKeyId,
-        secretAccessKey: awsSesSecretAccessKey,
-      },
-    }
-
-    this._transporter = nodemailer.createTransport({
-      SES: {
-        ses: new sesClientModule.SES(awsOptions),
-        aws: sesClientModule,
-      },
-    })
-  }
+  protected static transporter: nodemailer.Transporter | undefined;
 
   public sendAlert = async (
     subject: string,
     text: string,
-    _config: ServiceConfig,
+    config: ServiceConfig,
   ) => {
-    if (!this._transporter) {
-      logger.error('Email not available.');
-      return;
+    if (!AlertNotifier.transporter) {
+      AlertNotifier.init();
+
+      if (!AlertNotifier.transporter) {
+        logger.error('AlertNotifier.sendAlert: Email not available.');
+        return;
+      }
     }
 
     const mailOptions: any = {
@@ -48,13 +28,40 @@ export class AlertNotifier {
     };
 
     try {
-      for (const recipient of this._recipients) {
+      for (const recipient of config.alertRecipients) {
         mailOptions.to = recipient;
-        const info = await this._transporter.sendMail(mailOptions);
-        console.log('Message sent: %s', info.messageId);
+        const info = await AlertNotifier.transporter.sendMail(mailOptions);
+        logger.info('Message sent: %s', info.messageId);
       }
     } catch (error) {
       console.error('Error sending email:', error);
     }
+  }
+
+  protected static init(): void {
+    if (AlertNotifier.transporter) {
+      return;
+    }
+
+    const awsSesAccessKeyId = process.env.AWS_SES_ACCESS_KEY_ID ?? '';
+    const awsSesSecretAccessKey = process.env.AWS_SES_SECRET_ACCESS_KEY ?? '';
+    const awsSesRegion = process.env.AWS_SES_REGION ?? '';
+    const awsOptions = {
+      apiVersion: '2010-12-01',
+      region: awsSesRegion,
+      credentials: {
+        accessKeyId: awsSesAccessKeyId,
+        secretAccessKey: awsSesSecretAccessKey,
+      },
+    }
+
+    AlertNotifier.transporter = nodemailer.createTransport({
+      SES: {
+        ses: new SES(awsOptions),
+        aws: sesClientModule,
+      },
+    })
+
+    logger.info('Email transporter initialized successfully.');
   }
 }

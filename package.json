@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "build": "tsc",
     "start": "node --env-file=.env dist/index.js",
@@ -22,7 +22,8 @@
     "@baragaun/bg-node-client": "link:../bg-node-client",
     "express": "^5.0.1",
     "node-schedule": "^2.1.1",
-    "nodemailer": "^6.10.0"
+    "nodemailer": "^6.10.0",
+    "pino": "^9.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -32,6 +33,7 @@
     "@types/node-schedule": "^2.1.7",
     "@types/nodemailer": "^6.4.17",
     "eslint": "^9.22.0",
+    "eslint-import-resolver-typescript": "^3.8.7",
     "eslint-plugin-import": "^2.31.0",
     "globals": "^16.0.0",
     "jest": "^29.7.0",

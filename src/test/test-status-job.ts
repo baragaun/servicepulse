@@ -1,8 +1,8 @@
-import appStore from '../appStore.ts';
-import init from '../init.ts'
-import { BgServiceStatusJob } from '../jobs/BgServiceStatusJob.ts';
+import appStore from '../appStore.js';
+import { BgServiceStatusJob } from '../jobs/BgServiceStatusJob.js';
+import loadServices from '../services/helpers/loadServices.js';
 
-await init();
+await loadServices();
 const service = appStore.service('mmdata');
 
 if (!service) {

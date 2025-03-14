@@ -1,4 +1,4 @@
-import { ServiceType } from '../enums.ts';
+import { ServiceType } from '../enums.js';
 
 export interface ServiceConfig {
   name: string;
@@ -13,5 +13,6 @@ export interface ServiceConfig {
     schedule: string;
   },
   isBgService: boolean;
-  alertInterval: number;
+  alertIntervalInMinutes: number;
+  alertRecipients: string[];
 }

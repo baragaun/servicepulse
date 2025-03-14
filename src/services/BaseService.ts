@@ -1,10 +1,11 @@
-import appStore from './appStore.ts';
-import { ServiceHealth } from './enums.ts';
-import { ServiceConfig } from './types/index.ts';
+import { AlertNotifier } from '../AlertNotifier.js';
+import { ServiceHealth } from '../enums.js';
+import { ServiceConfig } from '../types/index.js';
 
 export abstract class BaseService {
   protected _name: string = '';
   protected _config: ServiceConfig;
+  protected _alertNotifier: AlertNotifier | undefined;
   protected _health = ServiceHealth.unknown;
 
   protected _limitedStartedAt?: Date;
@@ -18,8 +19,25 @@ export abstract class BaseService {
     this._config = config;
   }
 
-  public schedule(): void {
+  public schedule(): void {}
 
+  public sendAlert(
+    subject = '',
+    text = '',
+  ): void {
+    if (!this._alertNotifier) {
+      this._alertNotifier = new AlertNotifier();
+    }
+
+    this._alertNotifier.sendAlert(
+      subject || `Service alert for ${this._config.name}`,
+      text || JSON.stringify(this._config, null, 2),
+      this._config,
+    )
+      .then(() => {
+        this._alarmSentOutAt = new Date();
+      })
+      .catch(console.error);
   }
 
   public setHealth(health: ServiceHealth): void {
@@ -52,17 +70,11 @@ export abstract class BaseService {
       this._health !== ServiceHealth.ok &&
       (
         !this._alarmSentOutAt ||
-        // defaults to 10 minutes:
-        Date.now() > this._alarmSentOutAt.getTime() + (this._config.alertInterval || 600000)
+        // defaults to 1 hour:
+        Date.now() > this._alarmSentOutAt.getTime() + (this._config.alertIntervalInMinutes || 60) * 60 * 1000
       )
     ) {
-      const alertNotifier = appStore.alertNotifier();
-      alertNotifier.sendAlert(
-        this._name,
-        `Service alert for ${this._config.name}`,
-        this._config,
-      );
-      this._alarmSentOutAt = new Date();
+      this.sendAlert();
     }
   }
 

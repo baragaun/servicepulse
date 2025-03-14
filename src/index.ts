@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express'
 
-import { logger } from './helpers/logger.ts'
-import init from './init.ts';
+import { logger } from './helpers/logger.js'
+import loadServices from './services/helpers/loadServices.js';
 
 let _app: Express;
 
@@ -9,17 +9,22 @@ async function main(): Promise<void> {
   try {
     logger.info('Starting application...');
 
-    await init();
+    const services = await loadServices();
+
+    for (const [name, service] of services) {
+      logger.info(`Service ${name} loaded successfully`);
+      service.schedule();
+    }
 
     _app = express();
     const port = process.env.PORT || 8093;
 
-    _app.get("/", (_req: Request, res: Response) => {
-      res.json({ message: "Welcome to Servicepulse" });
+    _app.get('/', (_req: Request, res: Response) => {
+      res.json({ message: 'Welcome to Servicepulse' });
     });
 
     _app.listen(port, () => {
-      console.log(`The server is running at http://localhost:${port}`);
+      logger.debug(`The server is running at http://localhost:${port}`);
     });
 
     // Handle application shutdown
