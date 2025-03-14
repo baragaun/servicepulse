@@ -6,6 +6,9 @@ import {
 } from '@baragaun/bg-node-client';
 
 import { BaseJob } from './BaseJob.js';
+import appLogger from '../helpers/logger.js';
+
+const logger = appLogger.child({ scope: 'BgServiceE2eJob' });
 
 export class BgServiceE2eJob extends BaseJob {
   private _bgNodeClient?: BgNodeClient;
@@ -33,7 +36,7 @@ export class BgServiceE2eJob extends BaseJob {
     try {
       this._bgNodeClient = await new BgNodeClient().init(config);
     } catch (error) {
-      console.error('Error initializing BgNodeClient', error);
+      logger.error('Error initializing BgNodeClient', error);
       return this;
     }
 

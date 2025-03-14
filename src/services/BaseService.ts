@@ -1,6 +1,9 @@
-import { AlertNotifier } from '../AlertNotifier.js';
+import { AlertNotifier } from '../helpers/AlertNotifier.js';
 import { ServiceHealth } from '../enums.js';
+import appLogger from '../helpers/logger.js';
 import { ServiceConfig } from '../types/index.js';
+
+const logger = appLogger.child({ scope: 'BaseService' });
 
 export abstract class BaseService {
   protected _name: string = '';
@@ -25,22 +28,28 @@ export abstract class BaseService {
     subject = '',
     text = '',
   ): void {
+    logger.info('Sending alert', { name: this._name, subject, text });
+
     if (!this._alertNotifier) {
       this._alertNotifier = new AlertNotifier();
     }
 
     this._alertNotifier.sendAlert(
-      subject || `Service alert for ${this._config.name}`,
-      text || JSON.stringify(this._config, null, 2),
+      subject || `Service alert for ${this._config.name} - status=${this._health}`,
+      text || this.getAlertText() || JSON.stringify(this._config, null, 2),
       this._config,
     )
       .then(() => {
         this._alarmSentOutAt = new Date();
       })
-      .catch(console.error);
+      .catch((error) => {
+        logger.error('sendAlert: error', { error, name: this._name });
+      });
   }
 
   public setHealth(health: ServiceHealth): void {
+    logger.debug('Setting service health', { name: this._name, health });
+
     if (health === ServiceHealth.limited) {
       if (!this._limitedStartedAt) {
         this._limitedStartedAt = new Date();
@@ -77,6 +86,8 @@ export abstract class BaseService {
       this.sendAlert();
     }
   }
+
+  protected abstract getAlertText(): string;
 
   public get name(): string {
     return this._name;

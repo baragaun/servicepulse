@@ -1,5 +1,5 @@
 import { ServiceType } from '../../enums.js';
-import { logger } from '../../helpers/logger.js';
+import logger from '../../helpers/logger.js';
 import { ServiceConfig } from '../../types/index.js';
 import { BaseService } from '../BaseService.js';
 import { BgDataService } from '../BgDataService.js';

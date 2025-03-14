@@ -1,6 +1,8 @@
 import schedule from 'node-schedule';
 
-import { logger } from '../../helpers/logger.js';
+import appLogger from '../../helpers/logger.js';
+
+const logger = appLogger.child({ scope: 'JobScheduler' });
 
 const _cronExpressions = {
   everyMinute: '* * * * *',
@@ -190,7 +192,7 @@ export class JobScheduler {
 
     // Register new job
     this.jobs.set(jobName, job);
-    logger.info(`JobScheduler.registerJob: Job ${jobName} scheduled successfully`);
+    logger.info(`registerJob: Job ${jobName} scheduled successfully`);
   }
 
   /**
@@ -200,11 +202,11 @@ export class JobScheduler {
    */
   private executeJob(jobName: string, callback: JobCallback): void {
     try {
-      logger.info(`JobScheduler.executeJob: Executing job: ${jobName}`);
+      logger.info(`executeJob: Executing job: ${jobName}`);
       callback();
-      logger.info(`JobScheduler.executeJob: Job ${jobName} completed successfully`);
+      logger.info(`executeJob: Job ${jobName} completed successfully`);
     } catch (error) {
-      logger.error(`JobScheduler.executeJob: Error executing job ${jobName}:`, error);
+      logger.error(`executeJob: Error executing job ${jobName}:`, error);
     }
   }
 }

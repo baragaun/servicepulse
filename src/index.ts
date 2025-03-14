@@ -1,9 +1,10 @@
 import express, { Express, Request, Response } from 'express'
 
-import { logger } from './helpers/logger.js'
+import logger from './helpers/logger.js';
 import loadServices from './services/helpers/loadServices.js';
 
 let _app: Express;
+
 
 async function main(): Promise<void> {
   try {

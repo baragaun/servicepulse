@@ -1,8 +1,10 @@
 import sesClientModule, { SES } from '@aws-sdk/client-ses';
 import nodemailer from 'nodemailer';
 
-import { logger } from './helpers/logger.js'
-import { ServiceConfig } from './types/index.js'
+import appLogger from './logger.js';
+import { ServiceConfig } from '../types/index.js';
+
+const logger = appLogger.child({ scope: 'AlertNotifier' });
 
 export class AlertNotifier {
   protected static transporter: nodemailer.Transporter | undefined;
@@ -16,7 +18,7 @@ export class AlertNotifier {
       AlertNotifier.init();
 
       if (!AlertNotifier.transporter) {
-        logger.error('AlertNotifier.sendAlert: Email not available.');
+        logger.error('sendAlert: Email not available.');
         return;
       }
     }
@@ -31,10 +33,10 @@ export class AlertNotifier {
       for (const recipient of config.alertRecipients) {
         mailOptions.to = recipient;
         const info = await AlertNotifier.transporter.sendMail(mailOptions);
-        logger.info('Message sent: %s', info.messageId);
+        logger.info('Message sent', { messageId: info.messageId });
       }
     } catch (error) {
-      console.error('Error sending email:', error);
+      logger.error('Error sending email:', { error });
     }
   }
 

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 import serviceFactory from './serviceFactory.js';
 import appStore from '../../appStore.js'
-import { logger } from '../../helpers/logger.js'
+import logger from '../../helpers/logger.js'
 import { ServiceConfig } from '../../types/index.js'
 import { BaseService } from '../BaseService.js';
 
@@ -40,7 +40,7 @@ const loadServices = async (): Promise<Map<string, BaseService>> => {
 
     return appStore.services();
   } catch (error) {
-    console.error('Error reading or parsing the JSON file:', error);
+    logger.error('Error reading or parsing the JSON file:', error);
     throw error;
   }
 }
