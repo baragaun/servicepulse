@@ -2,7 +2,7 @@ import sesClientModule, { SES } from '@aws-sdk/client-ses';
 import nodemailer from 'nodemailer';
 
 import appLogger from './logger.js';
-import { ServiceConfig } from '../types/index.js';
+import { BaseServiceConfig } from '../types/index.js';
 
 const logger = appLogger.child({ scope: 'AlertNotifier' });
 
@@ -12,7 +12,7 @@ export class AlertNotifier {
   public sendAlert = async (
     subject: string,
     text: string,
-    config: ServiceConfig,
+    config: BaseServiceConfig,
   ) => {
     if (!AlertNotifier.transporter) {
       AlertNotifier.init();

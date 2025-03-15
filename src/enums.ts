@@ -12,6 +12,6 @@ export enum ServiceType {
 }
 
 export enum JobType {
-  bgdataStatus = 'bgdataStatus',
-  bgdataE2e = 'bgdataE2e',
+  bgServiceStatus = 'bg-service-status',
+  bgServiceApi = 'bg-service-api',
 }

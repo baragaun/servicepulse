@@ -6,6 +6,7 @@ const _jobScheduler = new JobScheduler();
 
 const appStore = {
   service: (name: string): BaseService | undefined => _services.get(name),
+
   services: () => _services,
 
   setService: (service: BaseService): void => {

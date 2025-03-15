@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import serviceFactory from './serviceFactory.js';
 import appStore from '../../appStore.js'
 import logger from '../../helpers/logger.js'
-import { ServiceConfig } from '../../types/index.js'
+import { BaseServiceConfig } from '../../types/index.js'
 import { BaseService } from '../BaseService.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,18 +23,16 @@ const loadServices = async (): Promise<Map<string, BaseService>> => {
         logger.info(`loadServices: Found service config file: ${jsonFilePath}`);
 
         const data = await fs.promises.readFile(jsonFilePath, 'utf-8');
-        const serviceConfig = JSON.parse(data) as ServiceConfig;
+        const serviceConfig = JSON.parse(data) as BaseServiceConfig;
 
-        if (serviceConfig.isBgService) {
-          const service = serviceFactory(serviceConfig);
+        const service = serviceFactory(serviceConfig);
 
-          if (!service) {
-            logger.error(`loadServices: Failed to create service for ${serviceConfig.name}`);
-            continue;
-          }
-
-          appStore.setService(service);
+        if (!service) {
+          logger.error(`loadServices: Failed to create service for ${serviceConfig.name}`);
+          continue;
         }
+
+        appStore.setService(service);
       }
     }
 

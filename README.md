@@ -1,3 +1,12 @@
+# Servicepulse
+
+Servicepulse monitors the health of services.
+
+## Configuration
+
+Here is a sample configuration:
+
+```json
 {
   "name": "mmdata",
   "type": "bgdata",
@@ -5,16 +14,17 @@
   "jobs": [
     {
       "type": "bg-service-status",
-      "url": "https://mmdata.micromentor.org/mmdata/status/max",
+      "url": "<status-url>",
       "schedule": "everyMinute"
     },
     {
       "type": "bg-service-api",
-      "url": "http://localhost:8092/fsdata/api/graphql",
+      "url": "<api-url>",
       "schedule": "every30Minutes"
     }
   ],
   "isBgService": true,
   "alertIntervalInMinutes": 60,
-  "alertRecipients": ["holger+test@micromentor.org"]
+  "alertRecipients": ["<admin-email>"]
 }
+```

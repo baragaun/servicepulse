@@ -2,19 +2,23 @@ import { ServiceHealth } from '../enums.js';
 import { BaseJob } from './BaseJob.js';
 import fetchJsonData from '../helpers/fetchJsonData.js';
 import appLogger from '../helpers/logger.js';
+import { BaseService } from '../services/BaseService.js';
 import { BgDataService } from '../services/BgDataService.js';
-import { ServiceConfig } from '../types/index.js';
+import { BgServiceStatusJobConfig } from '../types/index.js';
 
-const logger = appLogger.child({ scope: 'BgServiceStatus' });
+const logger = appLogger.child({ scope: 'BgServiceStatusJob' });
 
 export class BgServiceStatusJob extends BaseJob {
+  public constructor(config: BgServiceStatusJobConfig, service: BaseService) {
+    super(config, service);
+  }
+
   public async run(): Promise<void> {
     let json: any | undefined = undefined;
 
     try {
-      const config: ServiceConfig = this._service.config;
-      logger.debug('Loading service status', { config: config.status });
-      json = await fetchJsonData(config.status.url);
+      logger.debug('Loading service status', { config: this._config });
+      json = await fetchJsonData((this._config as BgServiceStatusJobConfig).url);
     } catch (err) {
       logger.error(`Error in job ${this._service.config.name}:`, err);
       this._service.setHealth(ServiceHealth.unreachable);
@@ -32,5 +36,9 @@ export class BgServiceStatusJob extends BaseJob {
       (this._service as BgDataService).serviceStatusReport = json;
       this._service.setHealth(json.status);
     }
+  }
+
+  public get name(): string {
+    return 'bg-service-status';
   }
 }

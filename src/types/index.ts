@@ -1,18 +1,26 @@
 import { ServiceType } from '../enums.js';
 
-export interface ServiceConfig {
+export interface BaseJobConfig {
+  type: string;
+  schedule: string;
+}
+
+export interface BgServiceApiJobConfig extends BaseJobConfig {
+  url: string;
+}
+
+export interface BgServiceStatusJobConfig extends BaseJobConfig {
+  url: string;
+}
+
+export interface BaseServiceConfig {
   name: string;
   type: ServiceType;
   enabled: boolean;
-  status: {
-    url: string;
-    schedule: string;
-  },
-  api: {
-    url: string;
-    schedule: string;
-  },
-  isBgService: boolean;
   alertIntervalInMinutes: number;
   alertRecipients: string[];
+  jobs: BaseJobConfig[]
+}
+
+export interface BgDataServiceConfig extends BaseServiceConfig {
 }

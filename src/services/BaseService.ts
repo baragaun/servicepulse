@@ -1,13 +1,17 @@
-import { AlertNotifier } from '../helpers/AlertNotifier.js';
+import appStore from '../appStore.js';
 import { ServiceHealth } from '../enums.js';
+import { AlertNotifier } from '../helpers/AlertNotifier.js';
 import appLogger from '../helpers/logger.js';
-import { ServiceConfig } from '../types/index.js';
+import { BaseJob } from '../jobs/BaseJob.js';
+import jobFactory from '../jobs/helpers/jobFactory.js';
+import { BaseServiceConfig } from '../types/index.js';
 
 const logger = appLogger.child({ scope: 'BaseService' });
 
-export abstract class BaseService {
+export class BaseService {
   protected _name: string = '';
-  protected _config: ServiceConfig;
+  protected _config: BaseServiceConfig;
+  protected _jobs: BaseJob[] = [];
   protected _alertNotifier: AlertNotifier | undefined;
   protected _health = ServiceHealth.unknown;
 
@@ -17,12 +21,40 @@ export abstract class BaseService {
   protected _failedToParseStartedAt?: Date;
   protected _alarmSentOutAt?: Date;
 
-  protected constructor(config: ServiceConfig) {
+  protected constructor(config: BaseServiceConfig) {
     this._name = config.name;
     this._config = config;
+
+    if (Array.isArray(config.jobs) && config.jobs.length > 0) {
+      for (const jobConfig of config.jobs) {
+        const job = jobFactory(jobConfig, this);
+        if (job) {
+          this._jobs.push(job);
+        }
+      }
+    }
   }
 
-  public schedule(): void {}
+  public schedule(): void {
+    const scheduler = appStore.jobScheduler();
+
+    if (this._config.jobs.length < 1) {
+      logger.error('No jobs found for service', { name: this._name });
+      return;
+    }
+
+    for (const job of this._jobs) {
+      const jobConfig = job.config;
+      if (jobConfig.schedule) {
+        scheduler.scheduleCron(`${this._config.name}.${jobConfig.type}`, jobConfig.schedule, () => {
+          job.run().catch((err: Error) => {
+            logger.error(`Error in job ${this._config.name}:`, err);
+            // todo: save error into job?
+          });
+        });
+      }
+    }
+  }
 
   public sendAlert(
     subject = '',
@@ -87,13 +119,15 @@ export abstract class BaseService {
     }
   }
 
-  protected abstract getAlertText(): string;
+  protected getAlertText(): string {
+    return '';
+  }
 
   public get name(): string {
     return this._name;
   }
 
-  public get config(): ServiceConfig {
+  public get config(): BaseServiceConfig {
     return this._config;
   }
 
