@@ -1,6 +1,6 @@
 {
   "name": "mmdata",
-  "type": "bgdata",
+  "type": "bg-service",
   "enabled": true,
   "jobs": [
     {

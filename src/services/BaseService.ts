@@ -21,7 +21,7 @@ export class BaseService {
   protected _failedToParseStartedAt?: Date;
   protected _alarmSentOutAt?: Date;
 
-  protected constructor(config: BaseServiceConfig) {
+  public constructor(config: BaseServiceConfig) {
     this._name = config.name;
     this._config = config;
 

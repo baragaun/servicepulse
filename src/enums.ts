@@ -8,7 +8,7 @@ export enum ServiceHealth {
 }
 
 export enum ServiceType {
-  bgdata = 'bgdata',
+  bgService = 'bg-service',
 }
 
 export enum JobType {
