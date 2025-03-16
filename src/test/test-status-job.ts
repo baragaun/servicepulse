@@ -15,5 +15,5 @@ if (!jobConfig) {
   throw new Error('Job config not found');
 }
 
-const job = service.jobs.find(j => j.config.type === JobType.bgServiceApi);
+const job = service.jobs.find(j => j.config.type === JobType.bgServiceStatus);
 await job!.run();

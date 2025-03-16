@@ -45,7 +45,7 @@ export class BgServiceStatusJob extends BaseJob {
     }
 
     if (json.status) {
-      logger.error('BgServiceStatusJob.run: found status.',
+      logger.debug('BgServiceStatusJob.run: found status.',
         { status: json.status });
       (this._service as BgDataService).serviceStatusReport = json;
       this._health = json.status;

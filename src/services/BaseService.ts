@@ -83,7 +83,7 @@ export class BaseService {
       }
     }
 
-    if (!alert.enabled) {
+    if (alert.enabled !== undefined && !alert.enabled) {
       return;
     }
 
@@ -118,7 +118,7 @@ export class BaseService {
 
     if (this._alerts.length > 0) {
       for (const alert of this._alerts) {
-        if (alert.enabled) {
+        if (alert.enabled === undefined || alert.enabled) {
           this.sendAlert('', '', alert);
         }
       }
@@ -136,7 +136,7 @@ export class BaseService {
     }
 
     const readyJobs = this._jobs
-      .filter(j => j.config.enabled && j.health !== ServiceHealth.unknown && !j.running);
+      .filter(j => j.enabled && j.health !== ServiceHealth.unknown && !j.running);
 
     for (const job of readyJobs) {
       this._health.tests![job.name] = {
