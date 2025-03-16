@@ -1,10 +1,10 @@
 import appStore from '../appStore.js';
+import { BaseCheck } from '../checks/BaseCheck.js';
+import checkFactory from '../checks/helpers/checkFactory.js';
 import { ServiceHealth } from '../enums.js';
 import { AlertNotifier } from '../helpers/AlertNotifier.js';
 import chooseMoreRelevantHealth from '../helpers/chooseMoreRelevantHealth.js';
 import appLogger from '../helpers/logger.js';
-import { BaseJob } from '../jobs/BaseJob.js';
-import jobFactory from '../jobs/helpers/jobFactory.js';
 import { Alert, BaseServiceConfig, ServiceHealthInfo } from '../types/index.js';
 
 const logger = appLogger.child({ scope: 'BaseService' });
@@ -12,7 +12,7 @@ const logger = appLogger.child({ scope: 'BaseService' });
 export class BaseService {
   protected _name: string = '';
   protected _config: BaseServiceConfig;
-  protected _jobs: BaseJob[] = [];
+  protected _checks: BaseCheck[] = [];
   protected _health: ServiceHealthInfo = { overallHealth: ServiceHealth.unknown };
   protected _serviceStatusReport?: any;
 
@@ -28,11 +28,11 @@ export class BaseService {
     this._name = config.name;
     this._config = config;
 
-    if (Array.isArray(config.jobs) && config.jobs.length > 0) {
-      for (const jobConfig of config.jobs) {
-        const job = jobFactory(jobConfig, this);
-        if (job) {
-          this._jobs.push(job);
+    if (Array.isArray(config.checks) && config.checks.length > 0) {
+      for (const checkConfig of config.checks) {
+        const check = checkFactory(checkConfig, this);
+        if (check) {
+          this._checks.push(check);
         }
       }
     }
@@ -45,28 +45,28 @@ export class BaseService {
   }
 
   public schedule(): void {
-    const scheduler = appStore.jobScheduler();
+    const scheduler = appStore.checkScheduler();
 
-    if (this._config.jobs.length < 1) {
-      logger.error('No jobs found for service', { name: this._name });
+    if (this._config.checks.length < 1) {
+      logger.error('No checks found for service', { name: this._name });
       return;
     }
 
-    for (const job of this._jobs) {
-      const jobConfig = job.config;
-      if (jobConfig.schedule) {
-        scheduler.scheduleCron(`${this._config.name}.${jobConfig.type}`, jobConfig.schedule, () => {
-          job.run().catch((err: Error) => {
-            logger.error(`Error in job ${this._config.name}:`, err);
-            // todo: save error into job?
+    for (const check of this._checks) {
+      const checkConfig = check.config;
+      if (checkConfig.schedule) {
+        scheduler.scheduleCron(`${this._config.name}.${checkConfig.type}`, checkConfig.schedule, () => {
+          check.run().catch((err: Error) => {
+            logger.error(`Error in check ${this._config.name}:`, err);
+            // todo: save error into check?
           });
         });
       }
     }
   }
 
-  public onJobFinished(): void {
-    logger.debug('BaseService.onJobFinished called.', { name: this._name });
+  public onCheckFinished(): void {
+    logger.debug('BaseService.onCheckFinished called.', { name: this._name });
 
     this.updateHealth();
     this.sendAlertIfNeeded();
@@ -129,30 +129,30 @@ export class BaseService {
 
   public updateHealth(): ServiceHealthInfo {
     this._health = {
-      tests: {},
+      checks: {},
       overallHealth: ServiceHealth.unknown,
     }
 
-    if (!Array.isArray(this._jobs) || this._jobs.length < 1) {
+    if (!Array.isArray(this._checks) || this._checks.length < 1) {
       return this._health;
     }
 
-    const readyJobs = this._jobs
+    const readyChecks = this._checks
       .filter(j => j.enabled && j.health !== ServiceHealth.unknown && !j.running);
 
-    for (const job of readyJobs) {
-      this._health.tests![job.name] = {
-        health: job.health,
-        reason: job.reason,
+    for (const check of readyChecks) {
+      this._health.checks![check.name] = {
+        health: check.health,
+        reason: check.reason,
       }
 
       if (this._health.overallHealth === ServiceHealth.unknown) {
-        this._health.overallHealth = job.health;
+        this._health.overallHealth = check.health;
       } else {
-        this._health.overallHealth = chooseMoreRelevantHealth(this._health.overallHealth, job.health);
+        this._health.overallHealth = chooseMoreRelevantHealth(this._health.overallHealth, check.health);
       }
 
-      if (job.health === ServiceHealth.failedToParse) {
+      if (check.health === ServiceHealth.failedToParse) {
         return { overallHealth: ServiceHealth.failedToParse };
       }
     }
@@ -181,16 +181,17 @@ export class BaseService {
       delete this._unreachableStartedAt;
     }
 
+    logger.debug('BaseService.updateHealth finished.', { health: this._health });
+
     return this._health;
   }
 
   protected getAlertText(): string {
     if (
-      !this._health ||
+      !this._health?.checks ||
       this._health.overallHealth === ServiceHealth.unknown ||
       this._health.overallHealth === ServiceHealth.ok ||
-      !Array.isArray(this._health.tests) ||
-      this._health.tests.length < 1
+      Object.keys(this._health.checks).length < 1
     ) {
       return '';
     }
@@ -203,11 +204,19 @@ export class BaseService {
     } else if (this._unreachableStartedAt) {
       startedAtText = `Unreachable started at: ${this._unreachableStartedAt.toLocaleString()}`;
     }
+
+    let reasonText = this.reason;
+    if (reasonText && reasonText.length > 0) {
+      reasonText = `Reason: ${reasonText}`;
+    }
+
     return `Service: ${this._name}
+    ------------------------------------------------------------
     Health: ${this._health.overallHealth}
     Health Details: ${JSON.stringify(this._health, null, 2)}
-    Reason: ${this.reason || 'N/A'}
+    ${reasonText}
     ${startedAtText}
+    ------------------------------------------------------------
     Status report:
     ${JSON.stringify(this._serviceStatusReport, null, 2)}
     `;
@@ -226,43 +235,23 @@ export class BaseService {
     return this._config;
   }
 
-  public get health(): ServiceHealthInfo {
-    return this._health;
-  }
-
-  public get limitedStartedAt(): Date | undefined {
-    return this._limitedStartedAt;
-  }
-
-  public get offlineStartedAt(): Date | undefined {
-    return this._offlineStartedAt;
-  }
-
-  public get failedToParseStartedAt(): Date | undefined {
-    return this._failedToParseStartedAt;
-  }
-
-  public get unreachableStartedAt(): Date | undefined {
-    return this._unreachableStartedAt;
-  }
-
   public get reason(): string {
     if (
       !this._health ||
-      !Array.isArray(this._health.tests) ||
-      this._health.tests.length < 1
+      !Array.isArray(this._health.checks) ||
+      this._health.checks.length < 1
     ) {
       return '';
     }
 
-    return this._health.tests
+    return this._health.checks
       .filter(t => t.reason && !t.running)
       .map(t => t.reason)
       .join(',');
   }
 
-  public get jobs(): BaseJob[] {
-    return this._jobs;
+  public get checks(): BaseCheck[] {
+    return this._checks;
   }
 
   public get alerts(): Alert[] {

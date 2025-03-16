@@ -11,7 +11,7 @@ export enum ServiceType {
   bgService = 'bg-service',
 }
 
-export enum JobType {
+export enum CheckType {
   bgServiceStatus = 'bg-service-status',
   bgServiceApi = 'bg-service-api',
 }

@@ -7,16 +7,16 @@ import {
 import { ServiceHealth } from '../../enums.js';
 import appLogger from '../../helpers/logger.js';
 import { BaseService } from '../../services/BaseService.js';
-import { BgServiceApiJobConfig } from '../../types/index.js';
-import { BaseJob } from '../BaseJob.js';
-import { basicSignUp } from './basicSignUp.js';
+import { BgServiceApiCheckConfig } from '../../types/index.js';
+import { BaseCheck } from '../BaseCheck.js';
+import { basicAccountSignUp } from './basicAccountSignUp.js';
 
-const logger = appLogger.child({ scope: 'BgServiceApiJob' });
+const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
 
-export class BgServiceApiJob extends BaseJob {
+export class BgServiceApiCheck extends BaseCheck {
   private _bgNodeClient?: BgNodeClient;
 
-  public constructor(config: BgServiceApiJobConfig, service: BaseService) {
+  public constructor(config: BgServiceApiCheckConfig, service: BaseService) {
     super(config, service);
   }
 
@@ -37,7 +37,7 @@ export class BgServiceApiJob extends BaseJob {
       await this.init();
 
       if (!this._bgNodeClient) {
-        logger.error('BgServiceApiJob.run: failed to create BgNodeClient.');
+        logger.error('BgServiceApiCheck.run: failed to create BgNodeClient.');
         this._health = ServiceHealth.unknown;
         this._running = false;
 
@@ -45,7 +45,7 @@ export class BgServiceApiJob extends BaseJob {
       }
     }
 
-    return basicSignUp(this._bgNodeClient, this);
+    return basicAccountSignUp(this._bgNodeClient, this);
   }
 
   private async init(): Promise<void> {
@@ -60,7 +60,7 @@ export class BgServiceApiJob extends BaseJob {
     const config: BgNodeClientConfig = {
       inBrowser: false,
       fsdata: {
-        url: (this._config as BgServiceApiJobConfig).url,
+        url: (this._config as BgServiceApiCheckConfig).url,
         headers: {
           [HttpHeaderName.consumer]: 'servicepulse',
         },
@@ -75,7 +75,7 @@ export class BgServiceApiJob extends BaseJob {
         logger,
       );
     } catch (error) {
-      logger.error('BgServiceApiJob: Error initializing BgNodeClient',
+      logger.error('BgServiceApiCheck: Error initializing BgNodeClient',
         { config: this.config, error });
       return;
     }

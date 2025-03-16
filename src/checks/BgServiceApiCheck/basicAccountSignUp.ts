@@ -4,16 +4,16 @@ import {
   UserIdentType,
 } from '@baragaun/bg-node-client';
 
-import { BgServiceApiJob } from './BgServiceApiJob.js';
+import { BgServiceApiCheck } from './BgServiceApiCheck.js';
 import { ServiceHealth } from '../../enums.js';
 import chance from '../../helpers/chance.js';
 import appLogger from '../../helpers/logger.js';
 
-const logger = appLogger.child({ scope: 'BgServiceApiJob' });
+const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
 
-export const basicSignUp = async (
+export const basicAccountSignUp = async (
   bgNodeClient: BgNodeClient,
-  job: BgServiceApiJob,
+  check: BgServiceApiCheck,
 ): Promise<boolean> => {
   const firstName = chance.first();
   const lastName = chance.last();
@@ -23,7 +23,7 @@ export const basicSignUp = async (
   const email = chance.email();
   const token = '666666';
 
-  logger.debug('BgServiceApiJob.run: calling API/signUpUser',
+  logger.debug('BgServiceApiCheck.run: calling API/signUpUser',
     { userHandle, email, password });
 
   const signUpUserAuthResponse = await bgNodeClient.operations.myUser.signUpUser({
@@ -37,42 +37,42 @@ export const basicSignUp = async (
     source: `testtoken=${token}`,
   });
   if (signUpUserAuthResponse.error) {
-    logger.error('BgServiceApiJob.run: signUpUser returned an error', { error: signUpUserAuthResponse.error });
-    return job.setOffline('signUpUser: error');
+    logger.error('BgServiceApiCheck.run: signUpUser returned an error', { error: signUpUserAuthResponse.error });
+    return check.setOffline('signUpUser: error');
   }
 
   const authResponse = signUpUserAuthResponse.object?.userAuthResponse;
 
   if (!authResponse) {
-    logger.error('BgServiceApiJob.run: authResponse is not defined', { signUpUserAuthResponse });
-    return job.setOffline('signUpUser: error');
+    logger.error('BgServiceApiCheck.run: authResponse is not defined', { signUpUserAuthResponse });
+    return check.setOffline('signUpUser: error');
   }
 
   const myUserId = authResponse.userId;
 
   if (!myUserId) {
-    return job.setOffline('myUserId is undefined');
+    return check.setOffline('myUserId is undefined');
   }
 
   if (!authResponse.authToken) {
-    return job.setOffline('authResponse.authToken is undefined');
+    return check.setOffline('authResponse.authToken is undefined');
   }
 
   const clientInfo1 = await bgNodeClient?.clientInfoStore.load();
   if (!clientInfo1.myUserId || !clientInfo1.authToken || !clientInfo1.myUserDeviceUuid) {
-    return job.setOffline('clientInfo1 invalid');
+    return check.setOffline('clientInfo1 invalid');
   }
 
-  logger.debug('BgServiceApiJob.run: calling API/signMeOut');
+  logger.debug('BgServiceApiCheck.run: calling API/signMeOut');
 
   await bgNodeClient.operations.myUser.signMeOut();
 
   const clientInfo2 = await bgNodeClient?.clientInfoStore.load();
   if (clientInfo2.myUserId || clientInfo2.authToken || !clientInfo2.myUserDeviceUuid) {
-    return job.setOffline('clientInfo2 invalid');
+    return check.setOffline('clientInfo2 invalid');
   }
 
-  logger.debug('BgServiceApiJob.run: calling API/signInUser');
+  logger.debug('BgServiceApiCheck.run: calling API/signInUser');
 
   const signInUserResponse = await bgNodeClient.operations.myUser.signInUser({
     ident: email,
@@ -81,31 +81,31 @@ export const basicSignUp = async (
   });
 
   if (!signInUserResponse) {
-    return job.setOffline('signInUserResponse is undefined');
+    return check.setOffline('signInUserResponse is undefined');
   }
 
   if (signInUserResponse.error) {
-    return job.setOffline('signInUser returned an error');
+    return check.setOffline('signInUser returned an error');
   }
 
   if (!signInUserResponse.object?.userAuthResponse?.userId) {
-    return job.setOffline('signInUserResponse.object.userAuthResponse.userId is undefined');
+    return check.setOffline('signInUserResponse.object.userAuthResponse.userId is undefined');
   }
 
   if (!signInUserResponse.object?.userAuthResponse?.authToken) {
-    return job.setOffline('signInUserResponse.object.userAuthResponse.authToken is undefined');
+    return check.setOffline('signInUserResponse.object.userAuthResponse.authToken is undefined');
   }
 
   if (!signInUserResponse.object?.myUser?.id) {
-    return job.setOffline('signInUserResponse.object.myUser.id is undefined');
+    return check.setOffline('signInUserResponse.object.myUser.id is undefined');
   }
 
   const clientInfo3 = await bgNodeClient?.clientInfoStore.load();
   if (!clientInfo3.myUserId || !clientInfo3.authToken || !clientInfo3.myUserDeviceUuid) {
-    return job.setOffline('clientInfo3 invalid');
+    return check.setOffline('clientInfo3 invalid');
   }
 
-  logger.debug('BgServiceApiJob.run: calling API/updateMyUser');
+  logger.debug('BgServiceApiCheck.run: calling API/updateMyUser');
 
   await bgNodeClient.operations.myUser.updateMyUser(
     {
@@ -122,39 +122,39 @@ export const basicSignUp = async (
   });
 
   if (myUserFromNetwork?.id !== signInUserResponse.object?.myUser?.id) {
-    return job.setOffline('myUserFromNetwork?.id !== signInUserResponse.object?.myUser?.id');
+    return check.setOffline('myUserFromNetwork?.id !== signInUserResponse.object?.myUser?.id');
   }
 
   if (myUserFromNetwork?.userHandle !== userHandle) {
-    return job.setOffline('myUserFromNetwork?.userHandle !== userHandle');
+    return check.setOffline('myUserFromNetwork?.userHandle !== userHandle');
   }
 
   if (myUserFromNetwork?.firstName !== firstName) {
-    return job.setOffline('myUserFromNetwork?.firstName !== firstName');
+    return check.setOffline('myUserFromNetwork?.firstName !== firstName');
   }
 
   if (myUserFromNetwork?.lastName !== newLastName) {
-    return job.setOffline('myUserFromNetwork?.lastName !== newLastName');
+    return check.setOffline('myUserFromNetwork?.lastName !== newLastName');
   }
 
   if (myUserFromNetwork?.email !== email) {
-    return job.setOffline('myUserFromNetwork?.email !== email');
+    return check.setOffline('myUserFromNetwork?.email !== email');
   }
 
-  logger.debug('BgServiceApiJob.run: calling API/deleteMyUser');
+  logger.debug('BgServiceApiCheck.run: calling API/deleteMyUser');
 
   const deleteMyUserResponse = await bgNodeClient.operations.myUser.deleteMyUser(undefined, undefined, true);
 
   if (deleteMyUserResponse.error) {
-    return job.setOffline('deleteMyUser returned an error');
+    return check.setOffline('deleteMyUser returned an error');
   }
 
-  job.health = ServiceHealth.ok;
-  job.reason = '';
-  job.running = false;
-  logger.debug('BgServiceApiJob.run: successfully finished.');
+  check.health = ServiceHealth.ok;
+  check.reason = '';
+  check.running = false;
+  logger.debug('BgServiceApiCheck.run: successfully finished.');
 
-  job.service.onJobFinished();
+  check.service.onCheckFinished();
 
   return true;
 };

@@ -42,10 +42,10 @@ async function main(): Promise<void> {
 /**
  * Clean application shutdown
  */
-// function handleShutdown(scheduler: JobScheduler): void {
+// function handleShutdown(scheduler: CheckScheduler): void {
 //   logger.info('Shutting down application...');
-//   scheduler.cancelAllJobs();
-//   logger.info('All jobs cancelled');
+//   scheduler.cancelAllChecks();
+//   logger.info('All checks cancelled');
 //   process.exit(0);
 // }
 

@@ -1,8 +1,8 @@
-import { JobScheduler } from './jobs/helpers/JobScheduler.js'
+import { CheckScheduler } from './checks/helpers/CheckScheduler.js'
 import { BaseService } from './services/BaseService.js'
 
 const _services = new Map<string, BaseService>();
-const _jobScheduler = new JobScheduler();
+const _checkScheduler = new CheckScheduler();
 
 const appStore = {
   service: (name: string): BaseService | undefined => _services.get(name),
@@ -13,7 +13,7 @@ const appStore = {
     _services.set(service.name, service);
   },
 
-  jobScheduler: () => _jobScheduler,
+  checkScheduler: () => _checkScheduler,
 }
 
 export default appStore;

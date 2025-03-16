@@ -1,26 +1,26 @@
 import { ServiceHealth } from '../enums.js';
 import logger from '../helpers/logger.js';
 import { BaseService } from '../services/BaseService.js';
-import { BaseJobConfig } from '../types/index.js';
+import { BaseCheckConfig } from '../types/index.js';
 
-export abstract class BaseJob {
-  protected _config: BaseJobConfig;
+export abstract class BaseCheck {
+  protected _config: BaseCheckConfig;
   protected _service: BaseService;
   protected _health = ServiceHealth.unknown;
   protected _reason = '';
   protected _running = false;
 
-  public constructor(config: BaseJobConfig, service: BaseService) {
+  public constructor(config: BaseCheckConfig, service: BaseService) {
     this._config = config;
     this._service = service;
   }
 
   public setOffline(reason: string): boolean {
-    logger.error('BgServiceApiJob.run.setOffline called.', { reason });
+    logger.error('BgServiceApiCheck.run.setOffline called.', { reason });
     this._health = ServiceHealth.offline;
     this._reason = reason;
     this._running = false;
-    this._service.onJobFinished();
+    this._service.onCheckFinished();
 
     return false;
   }
@@ -29,7 +29,7 @@ export abstract class BaseJob {
 
   public abstract run(): Promise<boolean>;
 
-  public get config(): BaseJobConfig {
+  public get config(): BaseCheckConfig {
     return this._config;
   }
 

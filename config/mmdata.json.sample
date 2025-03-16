@@ -2,7 +2,7 @@
   "name": "some-name",
   "type": "bg-service",
   "enabled": true,
-  "jobs": [
+  "checks": [
     {
       "type": "bg-service-status",
       "url": "<url>",

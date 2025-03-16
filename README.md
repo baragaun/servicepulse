@@ -1,9 +1,13 @@
 # Servicepulse
 
 Servicepulse monitors the health of services. It is primarily meant for backends that use
-secureid-service and/or channels-service, but can be used to monitor any other HTTP service.
+[secureid-service](https://github.com/baragaun/secureid-service) and/or
+[channels-service](https://github.com/baragaun/channels-service), but can be used to 
+monitor any other HTTP service.
+It uses [bg-node-client](https://github.com/baragaun/bg-node-client) to run through some 
+end-to-end tests to verify the operational status of the GraphQL API.
 
-# Setup
+## Setup
 
 Clone this repository and install the dependencies:
 
@@ -21,7 +25,22 @@ pnpm build
 
 ## Configuration
 
-Create a `.env` file in the root directory. Use the sample `.env.example` file as a reference.
+Create a `.env` file in the root directory. Use the sample `.env.example` file as a reference:
+
+```bash
+PORT=8093
+
+# Logging:
+LOG_FILE="servicepulse.log"
+LOG_DIR="logs"
+LOG_LEVEL=debug
+
+# AWS SES for sending out emails:
+AWS_SES_ACCESS_KEY_ID=<key>
+AWS_SES_SECRET_ACCESS_KEY=<secret-key>
+AWS_SES_REGION=<region>
+AWS_SES_SENDER_EMAIL=<email>
+```
 
 To configure the services that Servicepulse will monitor, create one or more JSON files in
 the `config` directory, one each for a service you want to monitor.
@@ -33,7 +52,7 @@ Here is a sample configuration:
   "name": "mmdata",
   "type": "bg-service",
   "enabled": true,
-  "jobs": [
+  "checks": [
     {
       "type": "bg-service-status",
       "url": "<status-url>",
@@ -57,10 +76,10 @@ Here is a sample configuration:
 * **name**: The name of the service.
 * **type**: The type of the service of type `ServiceType`
 * **enabled**: A boolean indicating whether the service is enabled.
-* **jobs**: An array of job configurations for the service.
-  * **type**: The type of the job of type `JobType`.
-  * **url**: The URL to be monitored or checked by the job.
-  * **schedule**: The schedule for the job in cron format or predefined intervals (e.g., 
+* **checks**: An array of check configurations for the service.
+  * **type**: The type of the check of type `CheckType`.
+  * **url**: The URL to be monitored or checked by the check.
+  * **schedule**: The schedule for the check in cron format or predefined intervals (e.g., 
     `everyMinute`, `every30Minutes`).
 * **alertIntervalInMinutes**: The interval in minutes between alert notifications that are 
   repeatedly sent out while the service is in an alert state. Default is 60 minutes.
@@ -88,8 +107,8 @@ pm2 start node --env-file=.env dist/index.js --name servicepulse
 Here is a simple test that would monitor a service that returns a JSON response:
 
 ```ts
-export class MyTest extends BaseJob {
-  public constructor(config: BaseJobConfig, service: BaseService) {
+export class MyTest extends BaseCheck {
+  public constructor(config: BaseCheckConfig, service: BaseService) {
     super(config, service);
   }
 
@@ -101,37 +120,27 @@ export class MyTest extends BaseJob {
     this._running = true;
 
     try {
-      logger.debug('MyTest.run: loading service status.', { config: this._config });
       json = await fetchJsonData(this._config.url);
     } catch (error) {
-      logger.error('MyTest.run: error in fetching.', { error });
       this._health = ServiceHealth.unreachable;
       this._running = false;
-      this._service.onJobFinished();
+      this._service.onCheckFinished();
       return false;
     }
-
-    logger.debug('MyTest.run: fetched JSON data:', { json });
 
     if (!json) {
-      logger.error('MyTest.run: no JSON data found.');
       this._health = ServiceHealth.failedToParse;
-      this._reason = 'No JSON data found';
       this._running = false;
-      this._service.onJobFinished();
+      this._service.onCheckFinished();
 
       return false;
     }
 
-    if (json.status) {
-      logger.debug('MyTest.run: found status.',
-              { status: json.status });
-      (this._service as BgDataService).serviceStatusReport = json;
-      this._health = json.status;
-    }
-
+    // todo: read JSON and determine whether the service is healthy or not
+    this._health = ServiceHealth.ok;
+    
     this._running = false;
-    this._service.onJobFinished();
+    this._service.onCheckFinished();
 
     return true;
   }
@@ -140,5 +149,14 @@ export class MyTest extends BaseJob {
     return 'my-test';
   }
 }
+```
 
+Then add it to your configuration file:
+
+```json
+{
+  "type": "my-test",
+  "url": "<url>",
+  "schedule": "everyMinute"
+}
 ```
