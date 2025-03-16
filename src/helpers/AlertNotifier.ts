@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/default
 import sesClientModule, { SES } from '@aws-sdk/client-ses';
 import nodemailer from 'nodemailer';
 

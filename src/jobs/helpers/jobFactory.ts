@@ -7,7 +7,7 @@ import {
   BgServiceStatusJobConfig,
 } from '../../types/index.js';
 import { BaseJob } from '../BaseJob.js';
-import { BgServiceApiJob } from '../BgServiceApiJob.js';
+import { BgServiceApiJob } from '../BgServiceApiJob/BgServiceApiJob.js';
 import { BgServiceStatusJob } from '../BgServiceStatusJob.js';
 
 const jobFactory = (

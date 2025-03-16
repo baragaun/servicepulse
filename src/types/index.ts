@@ -1,8 +1,9 @@
-import { ServiceType } from '../enums.js';
+import { ServiceHealth, ServiceType } from '../enums.js';
 
 export interface BaseJobConfig {
   type: string;
   schedule: string;
+  enabled: boolean;
 }
 
 export interface BgServiceApiJobConfig extends BaseJobConfig {
@@ -35,6 +36,16 @@ export interface BaseServiceConfig {
   enabled: boolean;
   alerts: AlertConfig[];
   jobs: BaseJobConfig[];
+}
+
+export interface ServiceHealthWithReason {
+  health: ServiceHealth;
+  reason?: string;
+}
+
+export interface ServiceHealthInfo {
+  tests?: { [key: string]: ServiceHealthWithReason };
+  overallHealth: ServiceHealth;
 }
 
 export interface BgDataServiceConfig extends BaseServiceConfig {

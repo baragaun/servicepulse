@@ -13,29 +13,48 @@ export class BgServiceStatusJob extends BaseJob {
     super(config, service);
   }
 
-  public async run(): Promise<void> {
+  public async run(): Promise<boolean> {
     let json: any | undefined = undefined;
 
+    this._health = ServiceHealth.unknown;
+    this._reason = '';
+    this._running = true;
+
     try {
-      logger.debug('Loading service status', { config: this._config });
+      logger.debug('BgServiceStatusJob.run: loading service status.',
+        { config: this._config });
       json = await fetchJsonData((this._config as BgServiceStatusJobConfig).url);
-    } catch (err) {
-      logger.error(`Error in job ${this._service.config.name}:`, err);
-      this._service.setHealth(ServiceHealth.unreachable, '');
+    } catch (error) {
+      logger.error('BgServiceStatusJob.run: error in fetching.', { error });
+      this._health = ServiceHealth.unreachable;
+      this._running = false;
+      this._service.onJobFinished();
+      return false;
     }
 
-    logger.debug('Fetched JSON data:', { json });
+    logger.debug('BgServiceStatusJob.run: fetched JSON data:', { json });
 
     if (!json) {
-      logger.error(`No JSON data found for ${this._service.config.name}`);
-      this._service.setHealth(ServiceHealth.failedToParse, '');
-      return;
+      logger.error('BgServiceStatusJob.run: no JSON data found.');
+      this._health = ServiceHealth.failedToParse;
+      this._reason = 'No JSON data found';
+      this._running = false;
+      this._service.onJobFinished();
+
+      return false;
     }
 
     if (json.status) {
+      logger.error('BgServiceStatusJob.run: found status.',
+        { status: json.status });
       (this._service as BgDataService).serviceStatusReport = json;
-      this._service.setHealth(json.status, '');
+      this._health = json.status;
     }
+
+    this._running = false;
+    this._service.onJobFinished();
+
+    return true;
   }
 
   public get name(): string {

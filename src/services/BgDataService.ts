@@ -14,8 +14,9 @@ export class BgDataService extends BaseService {
       startedAtText = `Unreachable started at: ${this._unreachableStartedAt.toLocaleString()}`;
     }
     return `Service: ${this._name}
-    Health: ${this._health}
-    Reason: ${this._reason || 'N/A'}
+    Health: ${this._health.overallHealth}
+    Health Details: ${JSON.stringify(this._health, null, 2)}
+    Reason: ${this.reason || 'N/A'}
     ${startedAtText}
     Status report:
     ${JSON.stringify(this._serviceStatusReport, null, 2)}

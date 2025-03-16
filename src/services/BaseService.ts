@@ -1,10 +1,11 @@
 import appStore from '../appStore.js';
 import { ServiceHealth } from '../enums.js';
 import { AlertNotifier } from '../helpers/AlertNotifier.js';
+import chooseMoreRelevantHealth from '../helpers/chooseMoreRelevantHealth.js';
 import appLogger from '../helpers/logger.js';
 import { BaseJob } from '../jobs/BaseJob.js';
 import jobFactory from '../jobs/helpers/jobFactory.js';
-import { Alert, BaseServiceConfig } from '../types/index.js';
+import { Alert, BaseServiceConfig, ServiceHealthInfo } from '../types/index.js';
 
 const logger = appLogger.child({ scope: 'BaseService' });
 
@@ -12,8 +13,7 @@ export class BaseService {
   protected _name: string = '';
   protected _config: BaseServiceConfig;
   protected _jobs: BaseJob[] = [];
-  protected _health = ServiceHealth.unknown;
-  protected _reason = '';
+  protected _health: ServiceHealthInfo = { overallHealth: ServiceHealth.unknown };
   protected _alertNotifier: AlertNotifier | undefined;
   protected _alerts: Alert[] = [];
 
@@ -63,6 +63,13 @@ export class BaseService {
     }
   }
 
+  public onJobFinished(): void {
+    logger.debug('BaseService.onJobFinished called.', { name: this._name });
+
+    this.updateHealth();
+    this.sendAlertIfNeeded();
+  }
+
   public sendAlert(
     subject: string,
     text: string,
@@ -98,42 +105,16 @@ export class BaseService {
     });
   }
 
-  public setHealth(health: ServiceHealth, reason: string): void {
-    logger.debug('Setting service health', { name: this._name, health, reason });
+  protected sendAlertIfNeeded(): void {
+    logger.debug('BaseService.sendAlertIfNeeded called.', { name: this._name });
 
-    if (reason) {
-      this._reason = reason;
-    }
-
-    if (health === this._health) {
+    if (
+      !this._health ||
+      this._health.overallHealth === ServiceHealth.unknown ||
+      this._health.overallHealth === ServiceHealth.ok
+    ) {
       return;
     }
-
-    if (health === ServiceHealth.limited) {
-      if (!this._limitedStartedAt) {
-        this._limitedStartedAt = new Date();
-      }
-    } else if (health === ServiceHealth.offline) {
-      if (!this._offlineStartedAt) {
-        this._offlineStartedAt = new Date();
-      }
-    } else if (health === ServiceHealth.failedToParse) {
-      if (!this._failedToParseStartedAt) {
-        this._failedToParseStartedAt = new Date();
-      }
-    } else if (health === ServiceHealth.unreachable) {
-      if (!this._unreachableStartedAt) {
-        this._offlineStartedAt = new Date();
-      }
-      this._unreachableStartedAt = new Date();
-    } else if (health === ServiceHealth.ok) {
-      delete this._limitedStartedAt;
-      delete this._offlineStartedAt;
-      delete this._failedToParseStartedAt;
-      delete this._unreachableStartedAt;
-      this._reason = '';
-    }
-    this._health = health;
 
     if (this._alerts.length > 0) {
       for (const alert of this._alerts) {
@@ -144,8 +125,76 @@ export class BaseService {
     }
   }
 
+  public updateHealth(): ServiceHealthInfo {
+    this._health = {
+      tests: {},
+      overallHealth: ServiceHealth.unknown,
+    }
+
+    if (!Array.isArray(this._jobs) || this._jobs.length < 1) {
+      return this._health;
+    }
+
+    const readyJobs = this._jobs
+      .filter(j => j.config.enabled && j.health !== ServiceHealth.unknown && !j.running);
+
+    for (const job of readyJobs) {
+      this._health.tests![job.name] = {
+        health: job.health,
+        reason: job.reason,
+      }
+
+      if (this._health.overallHealth === ServiceHealth.unknown) {
+        this._health.overallHealth = job.health;
+      } else {
+        this._health.overallHealth = chooseMoreRelevantHealth(this._health.overallHealth, job.health);
+      }
+
+      if (job.health === ServiceHealth.failedToParse) {
+        return { overallHealth: ServiceHealth.failedToParse };
+      }
+    }
+
+    if (this._health.overallHealth === ServiceHealth.limited) {
+      if (!this._limitedStartedAt) {
+        this._limitedStartedAt = new Date();
+      }
+    } else if (this._health.overallHealth === ServiceHealth.offline) {
+      if (!this._offlineStartedAt) {
+        this._offlineStartedAt = new Date();
+      }
+    } else if (this._health.overallHealth === ServiceHealth.failedToParse) {
+      if (!this._failedToParseStartedAt) {
+        this._failedToParseStartedAt = new Date();
+      }
+    } else if (this._health.overallHealth === ServiceHealth.unreachable) {
+      if (!this._unreachableStartedAt) {
+        this._offlineStartedAt = new Date();
+      }
+      this._unreachableStartedAt = new Date();
+    } else if (this._health.overallHealth === ServiceHealth.ok) {
+      delete this._limitedStartedAt;
+      delete this._offlineStartedAt;
+      delete this._failedToParseStartedAt;
+      delete this._unreachableStartedAt;
+    }
+
+    return this._health;
+  }
+
   protected getAlertText(): string {
-    return this._reason;
+    if (
+      !this._health ||
+      !Array.isArray(this._health.tests) ||
+      this._health.tests.length < 1
+    ) {
+      return '';
+    }
+
+    return this._health.tests
+      .filter(t => t.reason)
+      .map(t => t.reason)
+      .join(',');
   }
 
   public get name(): string {
@@ -156,7 +205,7 @@ export class BaseService {
     return this._config;
   }
 
-  public get health(): ServiceHealth {
+  public get health(): ServiceHealthInfo {
     return this._health;
   }
 
@@ -177,7 +226,18 @@ export class BaseService {
   }
 
   public get reason(): string {
-    return this._reason;
+    if (
+      !this._health ||
+      !Array.isArray(this._health.tests) ||
+      this._health.tests.length < 1
+    ) {
+      return '';
+    }
+
+    return this._health.tests
+      .filter(t => t.reason && !t.running)
+      .map(t => t.reason)
+      .join(',');
   }
 
   public get jobs(): BaseJob[] {
