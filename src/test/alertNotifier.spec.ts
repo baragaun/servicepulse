@@ -20,10 +20,11 @@ describe('alertNotifier', () => {
     }
 
     const service = appStore.service('mmdata');
-
     expect(service).toBeDefined();
 
-    service!.sendAlert();
+    const alert = service!.alerts[0];
+
+    service!.sendAlert('Hello There!', 'Just a quick greeting', alert);
 
     if (mock) {
       expect(sendMailMock).toHaveBeenCalled();

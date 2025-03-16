@@ -21,20 +21,20 @@ export class BgServiceStatusJob extends BaseJob {
       json = await fetchJsonData((this._config as BgServiceStatusJobConfig).url);
     } catch (err) {
       logger.error(`Error in job ${this._service.config.name}:`, err);
-      this._service.setHealth(ServiceHealth.unreachable);
+      this._service.setHealth(ServiceHealth.unreachable, '');
     }
 
     logger.debug('Fetched JSON data:', { json });
 
     if (!json) {
       logger.error(`No JSON data found for ${this._service.config.name}`);
-      this._service.setHealth(ServiceHealth.failedToParse);
+      this._service.setHealth(ServiceHealth.failedToParse, '');
       return;
     }
 
     if (json.status) {
       (this._service as BgDataService).serviceStatusReport = json;
-      this._service.setHealth(json.status);
+      this._service.setHealth(json.status, '');
     }
   }
 

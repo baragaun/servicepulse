@@ -20,6 +20,7 @@
   "dependencies": {
     "@aws-sdk/client-ses": "^3.758.0",
     "@baragaun/bg-node-client": "link:../bg-node-client",
+    "chance": "^1.1.12",
     "express": "^5.0.1",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.10.0",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@types/chance": "^1.1.6",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.10",

@@ -44,8 +44,12 @@ Here is a sample configuration:
       "schedule": "every30Minutes"
     }
   ],
-  "alertIntervalInMinutes": 60,
-  "alertRecipients": ["<admin-email>"]
+  "alerts": [{
+    "intervalInMinutes": 5,
+    "recipients": [
+      { "name": "<name>", "email": "<email>" }
+    ]
+  }]
 }
 ```
 

@@ -15,14 +15,11 @@ export class BgDataService extends BaseService {
     }
     return `Service: ${this._name}
     Health: ${this._health}
+    Reason: ${this._reason || 'N/A'}
     ${startedAtText}
     Status report:
     ${JSON.stringify(this._serviceStatusReport, null, 2)}
     `;
-  }
-
-  public get serviceStatusReport(): any | undefined {
-    return this._serviceStatusReport;
   }
 
   public set serviceStatusReport(report: any | undefined) {

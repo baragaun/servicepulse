@@ -2,7 +2,7 @@ import sesClientModule, { SES } from '@aws-sdk/client-ses';
 import nodemailer from 'nodemailer';
 
 import appLogger from './logger.js';
-import { BaseServiceConfig } from '../types/index.js';
+import { Alert } from '../types/index.js';
 
 const logger = appLogger.child({ scope: 'AlertNotifier' });
 
@@ -12,7 +12,7 @@ export class AlertNotifier {
   public sendAlert = async (
     subject: string,
     text: string,
-    config: BaseServiceConfig,
+    alert: Alert,
   ) => {
     if (!AlertNotifier.transporter) {
       AlertNotifier.init();
@@ -30,11 +30,13 @@ export class AlertNotifier {
     };
 
     try {
-      for (const recipient of config.alertRecipients) {
-        mailOptions.to = recipient;
+      for (const recipient of alert.recipients) {
+        mailOptions.to = `${recipient.name} <${recipient.email}>`;
         const info = await AlertNotifier.transporter.sendMail(mailOptions);
         logger.info('Message sent', { messageId: info.messageId });
       }
+
+      alert.lastSentAt = Date.now();
     } catch (error) {
       logger.error('Error sending email:', { error });
     }

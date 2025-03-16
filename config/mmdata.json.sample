@@ -1,17 +1,16 @@
 {
-  "name": "mmdata",
+  "name": "some-name",
   "type": "bg-service",
   "enabled": true,
   "jobs": [
     {
       "type": "bg-service-status",
-      "url.disabled": "https://mmdata.micromentor.org/mmdata/status/max",
-      "url": "http://localhost:8092/fsdata/status/max",
+      "url": "<url>",
       "schedule": "everyMinute"
     },
     {
       "type": "bg-service-api",
-      "url": "http://localhost:8092/fsdata/api/graphql",
+      "url": "<url",
       "schedule": "every30Minutes"
     }
   ],
@@ -19,7 +18,7 @@
   "alerts": [{
     "intervalInMinutes": 5,
     "recipients": [
-      { "name": "Holger", "email": "holger+test@micromentor.org" }
+      { "name": "<name>", "email": "<email>" }
     ]
   }]
 }

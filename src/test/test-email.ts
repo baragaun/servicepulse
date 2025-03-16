@@ -7,4 +7,4 @@ const service = appStore.service('mmdata');
 if (!service) {
   throw new Error('Service not found');
 }
-service!.sendAlert();
+service!.sendAlert('', '', service.alerts[0]);
