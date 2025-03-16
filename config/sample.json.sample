@@ -1,6 +1,5 @@
 {
   "name": "some-name",
-  "type": "bg-service",
   "enabled": true,
   "checks": [
     {
@@ -14,7 +13,6 @@
       "schedule": "every30Minutes"
     }
   ],
-  "isBgService": true,
   "alerts": [
     {
       "intervalInMinutes": 60,

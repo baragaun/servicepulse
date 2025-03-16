@@ -1,4 +1,5 @@
-import express, { Express, Request, Response } from 'express'
+import 'dotenv/config';
+import express, { Express, Request, Response } from 'express';
 
 import logger from './helpers/logger.js';
 import loadServices from './services/helpers/loadServices.js';

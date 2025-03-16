@@ -4,6 +4,9 @@
   "description": "",
   "type": "module",
   "main": "index.ts",
+  "engines": {
+    "node": ">= 20"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node --env-file=.env dist/index.js",
@@ -19,8 +22,9 @@
   "packageManager": "pnpm@10.5.2",
   "dependencies": {
     "@aws-sdk/client-ses": "^3.758.0",
-    "@baragaun/bg-node-client": "^0.0.2",
+    "@baragaun/bg-node-client": "^0.0.3",
     "chance": "^1.1.12",
+    "dotenv": "^16.4.7",
     "express": "^5.0.1",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.10.0",

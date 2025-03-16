@@ -7,6 +7,10 @@ monitor any other HTTP service.
 It uses [bg-node-client](https://github.com/baragaun/bg-node-client) to run through some 
 end-to-end tests to verify the operational status of the GraphQL API.
 
+## Pre-requisites
+* Node.js v20 or higher
+* AWS account with SES access to send out emails
+
 ## Setup
 
 Clone this repository and install the dependencies:
@@ -19,8 +23,8 @@ cd servicepulse
 # Use nvm to activate the correct Node.js version:
 nvm use
 
-pnpm install
-pnpm build
+npm install
+npm build
 ```
 
 ## Configuration
@@ -100,18 +104,50 @@ alert emails, both on their own schedule.
 Start Servicepulse with:
 
 ```bash
-pnpm start
+npm run start
 # Or:
-node --env-file=.env dist/index.js
+node dist/index.js
 ```
 
-Consider using PM2 for production deployment:
+## Setting Up A New Remote Host
 
-```bash
-pnpm install -g pm2
-pm2 start node --env-file=.env dist/index.js --name servicepulse
+```shell
+REMOTE_HOST=<remote-host>
+
+# SSH into the remote host:
+ssh ${REMOTE_HOST}
+
+mkdir -p apps/servicepulse/logs
+mkdir -p apps/servicepulse/config
+mkdir -p apps/servicepulse/env
+
+# Back to your local machine:
+exit
+
+rsync -avPe ssh --delete \
+--exclude "*.md" \
+--exclude "test/*" \
+--exclude "*/docs/*" \
+src \
+package.json \
+tsconfig.json \
+${REMOTE_HOST}:apps/servicepulse/
+
+scp env/.env.production ${REMOTE_HOST}:apps/servicepulse/.env
+scp -r config ${REMOTE_HOST}:apps/servicepulse/
+
+# SSH into the remote host:
+ssh ${REMOTE_HOST}
+cd apps/servicepulse
+npm install
+
+# If you want to use PM2:
+sudo npm install -g pm2
+pm2 start dist/index.js --name servicepulse
+
+# To tail the logs:
+tail -f logs/servicepulse<-date>.log
 ```
-
 ## Writing More Tests
 
 Here is a simple test that would monitor a service that returns a JSON response:
