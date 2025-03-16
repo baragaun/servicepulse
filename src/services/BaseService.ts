@@ -99,7 +99,7 @@ export class BaseService {
     logger.info('Sending alert', { name: this._name, subject, text, alert });
 
     this._alertNotifier.sendAlert(
-      subject || `Service alert for ${this._config.name} - status=${this._health.overallHealth}`,
+      subject || `Service alert for ${this._config.name} - status: '${this._health.overallHealth}'`,
       text || this.getAlertText() || JSON.stringify(this._config, null, 2),
       alert,
     ).catch((error) => {
@@ -198,28 +198,32 @@ export class BaseService {
 
     let startedAtText = '';
     if (this._limitedStartedAt) {
-      startedAtText = `Limited started at: ${this._limitedStartedAt.toLocaleString()}`;
+      startedAtText = '\n' + `Limited started at: '${this._limitedStartedAt.toLocaleString()}'`;
     } else if (this._offlineStartedAt) {
-      startedAtText = `Offline started at: ${this._offlineStartedAt.toLocaleString()}`;
+      startedAtText = '\n' + `Offline started at: '${this._offlineStartedAt.toLocaleString()}'`;
     } else if (this._unreachableStartedAt) {
-      startedAtText = `Unreachable started at: ${this._unreachableStartedAt.toLocaleString()}`;
+      startedAtText = '\n' + `Unreachable started at: '${this._unreachableStartedAt.toLocaleString()}'`;
     }
 
     let reasonText = this.reason;
     if (reasonText && reasonText.length > 0) {
-      reasonText = `Reason: ${reasonText}`;
+      reasonText = '\n' + `Reason: ${reasonText}`;
     }
 
-    return `Service: ${this._name}
-    ------------------------------------------------------------
-    Health: ${this._health.overallHealth}
-    Health Details: ${JSON.stringify(this._health, null, 2)}
-    ${reasonText}
-    ${startedAtText}
-    ------------------------------------------------------------
-    Status report:
-    ${JSON.stringify(this._serviceStatusReport, null, 2)}
-    `;
+    let statusReportText = '';
+    if (this._serviceStatusReport) {
+      statusReportText = JSON.stringify(this._serviceStatusReport, null, 2);
+      statusReportText = `Status report:${'\n' + statusReportText}`;
+    }
+
+    return `
+Service: '${this._name}'
+------------------------------------------------------------
+Health: '${this._health.overallHealth}'
+Health Details: ${this.healthDetails}${reasonText}${startedAtText}
+------------------------------------------------------------
+${statusReportText}
+`;
   }
 
   public set serviceStatusReport(report: any | undefined) {
@@ -237,17 +241,42 @@ export class BaseService {
 
   public get reason(): string {
     if (
-      !this._health ||
-      !Array.isArray(this._health.checks) ||
-      this._health.checks.length < 1
+      !this._health?.checks ||
+      Object.keys(this._health.checks).length < 1
     ) {
       return '';
     }
 
-    return this._health.checks
-      .filter(t => t.reason && !t.running)
-      .map(t => t.reason)
-      .join(',');
+    const reasons: string[] = [];
+    for (const key of Object.keys(this._health.checks)) {
+      const check = this._health.checks[key];
+      if (check.reason) {
+        reasons.push(`${key}: '${check.reason}'`);
+      }
+    }
+
+    return reasons.join(', ') || '';
+  }
+
+  public get healthDetails(): string {
+    if (
+      !this._health?.checks ||
+      Object.keys(this._health.checks).length < 1
+    ) {
+      return '';
+    }
+
+    const infos: string[] = [];
+    for (const key of Object.keys(this._health.checks)) {
+      const check = this._health.checks[key];
+      let info = `${key}: '${check.health}'`;
+      if (check.reason) {
+        info += `, reason: '${check.reason}'`;
+      }
+      infos.push(info);
+    }
+
+    return infos.join(', ') || '';
   }
 
   public get checks(): BaseCheck[] {

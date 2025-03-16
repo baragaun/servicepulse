@@ -16,7 +16,7 @@ export interface BgServiceStatusCheckConfig extends BaseCheckConfig {
 export interface AlertRecipient {
   name: string;
   email: string;
-  enabled: boolean;
+  enabled?: boolean;
 }
 
 export interface AlertConfig {
@@ -31,8 +31,8 @@ export interface Alert extends AlertConfig {
 
 export interface BaseServiceConfig {
   name: string;
-  type: ServiceType;
-  enabled: boolean;
+  type?: ServiceType;
+  enabled?: boolean;
   alerts: AlertConfig[];
   checks: BaseCheckConfig[];
 }

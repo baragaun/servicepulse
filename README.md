@@ -84,6 +84,16 @@ Here is a sample configuration:
 * **alertIntervalInMinutes**: The interval in minutes between alert notifications that are 
   repeatedly sent out while the service is in an alert state. Default is 60 minutes.
 * **alertRecipients**: An array of email addresses to receive alert notifications.
+  
+## Alerts
+
+You can set up one or more alerts for each service. An alert can have one or more recipient
+email addresses. If the service goes into an alert state, alerts will be sent out in the 
+configured interval until the service is back to a healthy state.
+
+With this, you can set up an alert to be sent to your mobile phone as a text message (check
+your mobile provider for details on how to set up an email-to-SMS gateway), plus receive
+alert emails, both on their own schedule.
 
 ## Running Servicepulse
 

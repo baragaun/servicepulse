@@ -15,10 +15,19 @@
     }
   ],
   "isBgService": true,
-  "alerts": [{
-    "intervalInMinutes": 5,
-    "recipients": [
-      { "name": "<name>", "email": "<email>" }
-    ]
-  }]
+  "alerts": [
+    {
+      "intervalInMinutes": 60,
+      "recipients": [
+        { "name": "<name1>", "email": "<email1>" },
+        { "name": "<name2>", "email": "<email2>", enabled: false }
+      ]
+    },
+    {
+      "intervalInMinutes": 120,
+      "recipients": [
+        { "name": "<name3>", "email": "<email3>" }
+      ]
+    }
+  ]
 }

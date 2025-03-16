@@ -5,6 +5,10 @@ import { BaseService } from '../BaseService.js';
 import { BgDataService } from '../BgDataService.js';
 
 const serviceFactory = (config: BaseServiceConfig): BaseService | null => {
+  if (!config.type) {
+    return new BaseService(config);
+  }
+
   if (config.type === ServiceType.bgService) {
     return new BgDataService(config);
   }

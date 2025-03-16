@@ -32,9 +32,11 @@ export class AlertNotifier {
 
     try {
       for (const recipient of alert.recipients) {
-        mailOptions.to = `${recipient.name} <${recipient.email}>`;
-        const info = await AlertNotifier.transporter.sendMail(mailOptions);
-        logger.info('Message sent', { messageId: info.messageId });
+        if (recipient.enabled === undefined || recipient.enabled) {
+          mailOptions.to = `${recipient.name} <${recipient.email}>`;
+          const info = await AlertNotifier.transporter.sendMail(mailOptions);
+          logger.info('Message sent', { messageId: info.messageId });
+        }
       }
 
       alert.lastSentAt = Date.now();
