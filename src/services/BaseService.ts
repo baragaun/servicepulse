@@ -14,6 +14,8 @@ export class BaseService {
   protected _config: BaseServiceConfig;
   protected _jobs: BaseJob[] = [];
   protected _health: ServiceHealthInfo = { overallHealth: ServiceHealth.unknown };
+  protected _serviceStatusReport?: any;
+
   protected _alertNotifier: AlertNotifier | undefined;
   protected _alerts: Alert[] = [];
 
@@ -89,7 +91,7 @@ export class BaseService {
 
     if (
       alert.lastSentAt &&
-      alert.lastSentAt + (alert.intervalInMinutes || 60) * 60 * 1000 < Date.now()
+      alert.lastSentAt + (alert.intervalInMinutes || 60) * 60 * 1000 > Date.now()
     ) {
       return;
     }
@@ -97,7 +99,7 @@ export class BaseService {
     logger.info('Sending alert', { name: this._name, subject, text, alert });
 
     this._alertNotifier.sendAlert(
-      subject || `Service alert for ${this._config.name} - status=${this._health}`,
+      subject || `Service alert for ${this._config.name} - status=${this._health.overallHealth}`,
       text || this.getAlertText() || JSON.stringify(this._config, null, 2),
       alert,
     ).catch((error) => {
@@ -185,16 +187,35 @@ export class BaseService {
   protected getAlertText(): string {
     if (
       !this._health ||
+      this._health.overallHealth === ServiceHealth.unknown ||
+      this._health.overallHealth === ServiceHealth.ok ||
       !Array.isArray(this._health.tests) ||
       this._health.tests.length < 1
     ) {
       return '';
     }
 
-    return this._health.tests
-      .filter(t => t.reason)
-      .map(t => t.reason)
-      .join(',');
+    let startedAtText = '';
+    if (this._limitedStartedAt) {
+      startedAtText = `Limited started at: ${this._limitedStartedAt.toLocaleString()}`;
+    } else if (this._offlineStartedAt) {
+      startedAtText = `Offline started at: ${this._offlineStartedAt.toLocaleString()}`;
+    } else if (this._unreachableStartedAt) {
+      startedAtText = `Unreachable started at: ${this._unreachableStartedAt.toLocaleString()}`;
+    }
+    return `Service: ${this._name}
+    Health: ${this._health.overallHealth}
+    Health Details: ${JSON.stringify(this._health, null, 2)}
+    Reason: ${this.reason || 'N/A'}
+    ${startedAtText}
+    Status report:
+    ${JSON.stringify(this._serviceStatusReport, null, 2)}
+    `;
+  }
+
+  public set serviceStatusReport(report: any | undefined) {
+    this._serviceStatusReport = report;
+    logger.debug('Service status report updated', { report });
   }
 
   public get name(): string {

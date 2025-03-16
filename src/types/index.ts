@@ -1,17 +1,16 @@
 import { ServiceHealth, ServiceType } from '../enums.js';
 
 export interface BaseJobConfig {
+  url: string;
   type: string;
   schedule: string;
   enabled: boolean;
 }
 
 export interface BgServiceApiJobConfig extends BaseJobConfig {
-  url: string;
 }
 
 export interface BgServiceStatusJobConfig extends BaseJobConfig {
-  url: string;
 }
 
 export interface AlertRecipient {
@@ -23,7 +22,7 @@ export interface AlertRecipient {
 export interface AlertConfig {
   intervalInMinutes: number;
   recipients: AlertRecipient[];
-  enabled: boolean;
+  enabled?: boolean;
 }
 
 export interface Alert extends AlertConfig {

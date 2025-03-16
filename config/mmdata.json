@@ -17,7 +17,7 @@
   ],
   "isBgService": true,
   "alerts": [{
-    "intervalInMinutes": 5,
+    "intervalInMinutes": 10,
     "recipients": [
       { "name": "Holger", "email": "holger+test@micromentor.org" }
     ]

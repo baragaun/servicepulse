@@ -23,7 +23,7 @@ export class BgServiceStatusJob extends BaseJob {
     try {
       logger.debug('BgServiceStatusJob.run: loading service status.',
         { config: this._config });
-      json = await fetchJsonData((this._config as BgServiceStatusJobConfig).url);
+      json = await fetchJsonData(this._config.url);
     } catch (error) {
       logger.error('BgServiceStatusJob.run: error in fetching.', { error });
       this._health = ServiceHealth.unreachable;
