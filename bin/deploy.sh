@@ -18,6 +18,7 @@ ${REMOTE_HOST}:apps/servicepulse/
 # Building the app:
 ssh ${REMOTE_HOST} "cd apps/servicepulse && npm install && npm run build"
 
+# Restarting it:
 ssh ${REMOTE_HOST} "pm2 restart servicepulse"
 
 echo "Done"

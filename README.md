@@ -148,6 +148,13 @@ pm2 start dist/index.js --name servicepulse
 # To tail the logs:
 tail -f logs/servicepulse<-date>.log
 ```
+
+## Deploying Servicepulse
+
+You can use the [bin/deploy.sh](bin/deploy.sh) script to deploy a new version of
+Servicepulse to a remote host. You'll have to adjust the `REMOTE_HOST` variable 
+in the script.
+
 ## Writing More Tests
 
 Here is a simple test that would monitor a service that returns a JSON response:
