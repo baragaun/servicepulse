@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  servicepulse:
+    image: servicepulse
+    container_name: servicepulse
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8093:8093"
+    volumes:
+      - ./logs:/app/logs
+    restart: always
