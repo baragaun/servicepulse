@@ -142,9 +142,15 @@ scp -r config ${REMOTE_HOST}:apps/servicepulse/
 ssh ${REMOTE_HOST}
 cd apps/servicepulse
 npm install
+npm build
 
 # If you want to use PM2:
 sudo npm install -g pm2
+
+# Make pm2 auto-boot at server restart:
+pm2 startup
+
+# Start Servicepulse:
 pm2 start dist/index.js --name servicepulse
 
 # To tail the logs:
