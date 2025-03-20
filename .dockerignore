@@ -3,14 +3,11 @@
 .idea/*
 .vscode/*
 _hs_local/*
-configs/*
+config/*
 dist/*
-docker-config/*
-docker-images
 docs/*
 env/*
-file-upload/*
-node_modules
+node_modules/*
 tmp/*
 tools/*
 **/test/*

@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   servicepulse:
     image: servicepulse
@@ -9,5 +8,6 @@ services:
     ports:
       - "8093:8093"
     volumes:
-      - ./logs:/app/logs
+      - ./log:/app/log
+      - ./config:/app/config
     restart: always
