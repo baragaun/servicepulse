@@ -111,6 +111,8 @@ node dist/index.js
 
 ## Setting Up A New Remote Host
 
+### Set Up Folder Structure And Upload Files
+
 ```shell
 REMOTE_HOST=<remote-host>
 
@@ -149,13 +151,58 @@ pm2 start dist/index.js --name servicepulse
 tail -f logs/servicepulse<-date>.log
 ```
 
-## Deploying Servicepulse
+### Setting Up Servicepulse On Host Without Docker
+
+```shell
+# SSH into the remote host:
+ssh ${REMOTE_HOST}
+cd apps/servicepulse
+npm install
+
+# If you want to use PM2:
+sudo npm install -g pm2
+pm2 start dist/index.js --name servicepulse
+
+# To tail the logs:
+tail -f logs/servicepulse<-date>.log
+```
+
+### Using Docker
+
+```shell
+# SSH into the remote host:
+ssh ${REMOTE_HOST}
+
+# Install Docker on Ubuntu 24.04 LTS
+# see: https://linuxiac.com/how-to-install-docker-on-ubuntu-24-04-lts/
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y apt-transport-https curl
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl is-active docker
+
+# Allowing user to run Docker commands without sudo:
+sudo usermod -aG docker ${USER}
+
+# Log out and in again to apply the group changes
+exit
+
+# Build Docker container and run it:
+ssh ${REMOTE_HOST}
+cd apps/servicepulse
+docker compose up -d
+```
+
+## Deploying Servicepulse (Without Docker)
 
 You can use the [bin/deploy.sh](bin/deploy.sh) script to deploy a new version of
 Servicepulse to a remote host. You'll have to adjust the `REMOTE_HOST` variable 
 in the script.
 
-## Writing More Tests
+## Writing More Service Checks
 
 Here is a simple test that would monitor a service that returns a JSON response:
 
