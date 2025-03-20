@@ -77,6 +77,9 @@ export class BaseService {
     text: string,
     alert: Alert,
   ): void {
+    logger.debug('BaseService.sendAlert called.',
+      { name: this._name, subject, text, alert });
+
     if (!this._alertNotifier) {
       this._alertNotifier = new AlertNotifier();
 
@@ -86,6 +89,8 @@ export class BaseService {
     }
 
     if (alert.enabled !== undefined && !alert.enabled) {
+      logger.debug('BaseService.sendAlert: not enabled.',
+        { name: this._name, alert });
       return;
     }
 
@@ -93,6 +98,14 @@ export class BaseService {
       alert.lastSentAt &&
       alert.lastSentAt + (alert.intervalInMinutes || 60) * 60 * 1000 > Date.now()
     ) {
+      logger.debug('BaseService.sendAlert: not time yet.',
+        {
+          name: this._name,
+          alert,
+          calculatedTimestamp: alert.lastSentAt + (alert.intervalInMinutes || 60) * 60 * 1000,
+          now: Date.now(),
+          diff: Date.now() - (alert.lastSentAt + (alert.intervalInMinutes || 60) * 60 * 1000),
+        });
       return;
     }
 
@@ -115,6 +128,8 @@ export class BaseService {
       this._health.overallHealth === ServiceHealth.unknown ||
       this._health.overallHealth === ServiceHealth.ok
     ) {
+      logger.debug('BaseService.sendAlertIfNeeded: no alert due to overall health',
+        { name: this._name, overallHealth: this._health.overallHealth });
       return;
     }
 

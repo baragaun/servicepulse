@@ -22,13 +22,17 @@ const transports: any[] = [];
 // console.log('Logger:', { filename: process.env.LOG_FILE, dirname: process.env.LOG_DIR });
 
 if (process.env.LOG_FILE) {
-  transports.push(
-    new DailyRotateFile({
-      json: true,
-      filename: process.env.LOG_FILE || 'servicepulse.log',
-      dirname: process.env.LOG_DIR || 'logs',
-    }),
-  );
+  try {
+    transports.push(
+      new DailyRotateFile({
+        json: true,
+        filename: process.env.LOG_FILE || 'servicepulse.log',
+        dirname: process.env.LOG_DIR || 'logs',
+      }),
+    );
+  } catch (error) {
+    console.error('Error initializing logger file transport:', error);
+  }
 }
 
 transports.push(
