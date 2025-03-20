@@ -19,6 +19,8 @@ const transports: any[] = [];
 //   filename: process.env.LOG_FILE || 'servicepulse.log',
 // }),
 
+// console.log('Logger:', { filename: process.env.LOG_FILE, dirname: process.env.LOG_DIR });
+
 if (process.env.LOG_FILE) {
   transports.push(
     new DailyRotateFile({

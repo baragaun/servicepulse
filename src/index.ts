@@ -1,11 +1,15 @@
-import 'dotenv/config';
+// eslint-disable-next-line import/order
+import dotenv from 'dotenv';
+dotenv.config();
+
+// console.log('Starting Servicepulse...', process.env);
+
 import express, { Express, Request, Response } from 'express';
 
 import logger from './helpers/logger.js';
 import loadServices from './services/helpers/loadServices.js';
 
 let _app: Express;
-
 
 async function main(): Promise<void> {
   try {
