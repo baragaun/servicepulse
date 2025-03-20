@@ -24,7 +24,7 @@ cd servicepulse
 nvm use
 
 npm install
-npm build
+npm run build
 ```
 
 ## Configuration
@@ -99,7 +99,7 @@ With this, you can set up an alert to be sent to your mobile phone as a text mes
 your mobile provider for details on how to set up an email-to-SMS gateway), plus receive
 alert emails, both on their own schedule.
 
-## Running Servicepulse
+## Running Servicepulse Locally
 
 Start Servicepulse with:
 
@@ -111,21 +111,24 @@ node dist/index.js
 
 ## Setting Up A New Remote Host
 
-### Set Up Folder Structure And Upload Files
+### Set Up Folder Structure And Upload Config Files
 
 ```shell
 REMOTE_HOST=<remote-host>
 
-# SSH into the remote host:
-ssh ${REMOTE_HOST}
+# Create directories:
+ssh ${REMOTE_HOST} "mkdir -p apps/servicepulse/logs apps/servicepulse/config"
+ssh ${REMOTE_HOST} "chmod 777 apps/servicepulse/logs"
 
-mkdir -p apps/servicepulse/logs
-mkdir -p apps/servicepulse/config
-mkdir -p apps/servicepulse/env
+# Copy config files:
+scp env/.env.production ${REMOTE_HOST}:apps/servicepulse/.env
+scp -r config ${REMOTE_HOST}:apps/servicepulse/
+```
 
-# Back to your local machine:
-exit
+### Setting Up Servicepulse On Remote Host Without Docker
 
+```shell
+# Copy sources to the remote host:
 rsync -avPe ssh --delete \
 --exclude "*.md" \
 --exclude "test/*" \
@@ -134,9 +137,6 @@ src \
 package.json \
 tsconfig.json \
 ${REMOTE_HOST}:apps/servicepulse/
-
-scp env/.env.production ${REMOTE_HOST}:apps/servicepulse/.env
-scp -r config ${REMOTE_HOST}:apps/servicepulse/
 
 # SSH into the remote host:
 ssh ${REMOTE_HOST}
@@ -157,23 +157,9 @@ pm2 start dist/index.js --name servicepulse
 tail -f logs/servicepulse<-date>.log
 ```
 
-### Setting Up Servicepulse On Host Without Docker
+### Setting Up Servicepulse On Remote Host Using Docker
 
-```shell
-# SSH into the remote host:
-ssh ${REMOTE_HOST}
-cd apps/servicepulse
-npm install
-
-# If you want to use PM2:
-sudo npm install -g pm2
-pm2 start dist/index.js --name servicepulse
-
-# To tail the logs:
-tail -f logs/servicepulse<-date>.log
-```
-
-### Using Docker
+If needed, install Docker:
 
 ```shell
 # SSH into the remote host:
@@ -195,18 +181,30 @@ sudo usermod -aG docker ${USER}
 
 # Log out and in again to apply the group changes
 exit
-
-# Build Docker container and run it:
-ssh ${REMOTE_HOST}
-cd apps/servicepulse
-docker compose up -d
 ```
 
-## Deploying Servicepulse (Without Docker)
+Install the `baragaun/servicepulse` Docker image and run it:
+
+```shell
+# SSH into the remote host:
+ssh ${REMOTE_HOST}
+docker run --env-file /home/ubuntu/apps/servicepulse/.env -p 8093:8093 -v /home/ubuntu/apps/servicepulse/log:/app/log:rw -v /home/ubuntu/apps/servicepulse/config:/app/config:ro --name servicepulse baragaun/servicepulse
+```
+
+## Updating Servicepulse
+
+### Without Docker:
 
 You can use the [bin/deploy.sh](bin/deploy.sh) script to deploy a new version of
 Servicepulse to a remote host. You'll have to adjust the `REMOTE_HOST` variable 
 in the script.
+
+### With Docker:
+
+```shell
+docker pull baragaun/servicepulse
+docker run --env-file /home/ubuntu/apps/servicepulse/.env -p 8093:8093 -v /home/ubuntu/apps/servicepulse/log:/app/log:rw -v /home/ubuntu/apps/servicepulse/config:/app/config:ro --name servicepulse baragaun/servicepulse
+```
 
 ## Writing More Service Checks
 
