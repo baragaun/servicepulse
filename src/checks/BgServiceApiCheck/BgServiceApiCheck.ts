@@ -1,8 +1,4 @@
-import {
-  BgNodeClient,
-  BgNodeClientConfig,
-  HttpHeaderName,
-} from '@baragaun/bg-node-client';
+import { BgNodeClient } from '@baragaun/bg-node-client';
 
 import { ServiceHealth } from '../../enums.js';
 import appLogger from '../../helpers/logger.js';
@@ -10,6 +6,7 @@ import { BaseService } from '../../services/BaseService.js';
 import { BgServiceApiCheckConfig } from '../../types/index.js';
 import { BaseCheck } from '../BaseCheck.js';
 import { basicAccountSignUp } from './basicAccountSignUp.js';
+import clientStore from '../../helpers/clientStore.js';
 
 const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
 
@@ -57,26 +54,14 @@ export class BgServiceApiCheck extends BaseCheck {
       return;
     }
 
-    const config: BgNodeClientConfig = {
-      inBrowser: false,
-      fsdata: {
-        url: (this._config as BgServiceApiCheckConfig).url,
-        headers: {
-          [HttpHeaderName.consumer]: 'servicepulse',
-        },
-      },
-    };
-
     try {
-      this._bgNodeClient = await new BgNodeClient().init(
-        config,
-        undefined,
-        undefined,
-        logger,
+      this._bgNodeClient = await clientStore.getBgNodeClient(
+        (this._config as BgServiceApiCheckConfig).url,
+        false,
       );
     } catch (error) {
       logger.error('BgServiceApiCheck: Error initializing BgNodeClient',
-        { config: this.config, error });
+        { config: this.config, error: (error as Error).message, stack: (error as Error).stack });
       return;
     }
 

@@ -1,7 +1,7 @@
 {
   "name": "servicepulse",
-  "version": "0.0.4",
-  "description": "",
+  "version": "0.0.5",
+  "description": "Monitors services and sends alert notification",
   "type": "module",
   "main": "index.ts",
   "engines": {
@@ -19,10 +19,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.5.2",
   "dependencies": {
     "@aws-sdk/client-ses": "^3.758.0",
-    "@baragaun/bg-node-client": "^0.0.3",
+    "@baragaun/bg-node-client": "^0.0.16",
     "chance": "^1.1.12",
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
@@ -46,14 +45,5 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.2.6",
     "typescript-eslint": "^8.26.1"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "protobufjs",
-      "rxdb"
-    ],
-    "ignoredBuiltDependencies": [
-      "@firebase/util"
-    ]
   }
 }

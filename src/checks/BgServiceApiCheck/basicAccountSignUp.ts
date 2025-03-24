@@ -6,7 +6,7 @@ import {
 
 import { BgServiceApiCheck } from './BgServiceApiCheck.js';
 import { ServiceHealth } from '../../enums.js';
-import chance from '../../helpers/chance.js';
+import chance, { uniqueEmail, uniqueUserHandle } from '../../helpers/chance.js';
 import appLogger from '../../helpers/logger.js';
 
 const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
@@ -18,9 +18,12 @@ export const basicAccountSignUp = async (
   const firstName = chance.first();
   const lastName = chance.last();
   const newLastName = chance.last();
-  const userHandle = chance.word();
+  const userHandle = uniqueUserHandle();
   const password = chance.word();
-  const email = chance.email();
+  const email = uniqueEmail(
+    check.config.testEmailPrefix || 'test',
+    check.config.testEmailDomain || 'test.com',
+  );
   const token = '666666';
 
   logger.debug('BgServiceApiCheck.run: calling API/signUpUser',
