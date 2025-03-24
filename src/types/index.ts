@@ -5,6 +5,16 @@ export interface BaseCheckConfig {
   type: string;
   schedule: string;
   enabled: boolean;
+
+  /**
+   * The email domain used for end-to-end testing.
+   */
+  testEmailDomain?: string;
+
+  /**
+   * The prefix for email addresses used for end-to-end testing.
+   */
+  testEmailPrefix?: string;
 }
 
 export interface BgServiceApiCheckConfig extends BaseCheckConfig {
