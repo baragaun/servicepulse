@@ -14,7 +14,7 @@ const getBgNodeClient = async (
   fsdataApiUrl: string,
   createNew = false,
 ): Promise<BgNodeClient> => {
-  if (createNew || _client) {
+  if (createNew && _client) { // Only clear the client if createNew is true and a client exists
     _client = undefined;
   }
 
