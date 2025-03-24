@@ -203,7 +203,7 @@ in the script.
 
 ```shell
 docker pull baragaun/servicepulse
-docker run --env-file /home/ubuntu/apps/servicepulse/.env -p 8093:8093 -v /home/ubuntu/apps/servicepulse/log:/app/log:rw -v /home/ubuntu/apps/servicepulse/config:/app/config:ro --name servicepulse baragaun/servicepulse
+docker run -d --env-file /home/ubuntu/apps/servicepulse/.env -p 8093:8093 -v /home/ubuntu/apps/servicepulse/log:/app/log:rw -v /home/ubuntu/apps/servicepulse/config:/app/config:ro --name servicepulse baragaun/servicepulse
 ```
 
 ## Writing More Service Checks
@@ -264,3 +264,22 @@ Then add it to your configuration file:
   "schedule": "everyMinute"
 }
 ```
+
+## Development
+
+### Creating A New Docker Image
+
+Increment the version number in the `package.json` file. Then build a new Docker image:
+
+```shell
+docker build --platform=linux/amd64 -t baragaun/servicepulse .
+
+# Or:
+npm run build-docker-image
+```
+
+To push the new image to Docker Hub:
+```shell
+docker push baragaun/servicepulse
+```
+

@@ -8,20 +8,22 @@
     "node": ">= 20"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist/* && tsc",
+    "clean": "rm -rf dist/*",
     "start": "node --env-file=.env dist/index.js",
     "start-dev": "npx tsx --env-file=.env src/index.ts",
     "watch": "npx tsx --env-file=.env --watch  src/index.ts",
     "test": "node --env-file=.env --experimental-vm-modules ./node_modules/.bin/jest",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix --ext .js,.ts"
+    "lint:fix": "eslint src --fix --ext .js,.ts",
+    "build-docker-image": "docker build --platform=linux/amd64 -t baragaun/servicepulse ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-ses": "^3.758.0",
-    "@baragaun/bg-node-client": "^0.0.16",
+    "@baragaun/bg-node-client": "^0.0.17",
     "chance": "^1.1.12",
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
