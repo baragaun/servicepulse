@@ -1,4 +1,4 @@
-export interface UserProps {
+export interface Partial<MyUser> {
   id?: string;
   userHandle?: string;
   firstName?: string;

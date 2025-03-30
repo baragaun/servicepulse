@@ -1,16 +1,16 @@
-import { UserProps } from '../types.js';
+import { MyUser } from '@baragaun/bg-node-client';
 
 export interface VerifyUserPropsResult {
   errors?: string[];
 }
 
 export const verifyUserProps = (
-  user: Partial<UserProps>,
-  target: Partial<UserProps>,
+  user: Partial<MyUser>,
+  target: Partial<MyUser>,
 ): VerifyUserPropsResult => {
   const errors: string[] = [];
   for (const key in target) {
-    if (target[key as keyof UserProps] !== user[key as keyof UserProps]) {
+    if (target[key as keyof Partial<MyUser>] !== user[key as keyof Partial<MyUser>]) {
       errors.push(`${key} does not match`);
     }
   }

@@ -1,12 +1,11 @@
-import { BgNodeClient, MyUser } from '@baragaun/bg-node-client';
+import { BgNodeClient, MyUser, MyUserChanges } from '@baragaun/bg-node-client';
 
 import { BgServiceApiCheck } from '../BgServiceApiCheck.js';
 import { signMeUp } from './signMeUp.js';
-import { UserProps } from '../types.js';
 import { generateUserProps } from './generateUserProps.js';
 
 export const createMultipleUsers = async (
-  props: UserProps[] | number,
+  props: Partial<MyUserChanges>[] | number,
   bgNodeClient: BgNodeClient,
   check: BgServiceApiCheck,
 ): Promise<MyUser[] | null> => {
@@ -16,7 +15,7 @@ export const createMultipleUsers = async (
     props = Array.from({ length: props }, () => generateUserProps(check));
   }
 
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < props.length; i++) {
     const user = await signMeUp(
       props[i],
       true,
@@ -27,7 +26,6 @@ export const createMultipleUsers = async (
       check.setOffline(`#06-01: signMeUp failed for user${i}`);
       return null;
     }
-    user.adminNotes = props[i].password;
     users.push(user);
   }
 

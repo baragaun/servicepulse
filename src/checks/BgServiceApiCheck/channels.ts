@@ -7,6 +7,9 @@ import { createMultipleUsers } from './helpers/createMultipleUsers.js';
 import { deleteMultipleUsers } from './helpers/deleteMultipleUsers.js';
 import chance from '../../helpers/chance.js';
 import appLogger from '../../helpers/logger.js';
+import { signMeIn } from './helpers/signMeIn.js';
+import getTestUserProps from '../../helpers/getTestUserProps.js';
+import { signMeOut } from './helpers/signMeOut.js';
 
 const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
 
@@ -23,7 +26,15 @@ export const channelsCheck = async (
   );
 
   if (!users) {
-    return check.setOffline('#06-01: createMultipleUsers failed');
+    return check.setOffline('#c1-01: createMultipleUsers failed');
+  }
+
+  const passwords = users.map(u => getTestUserProps(u).password || '');
+
+  // ...........................................................................
+  // Signing in as user #1:
+  if (!await signMeIn(users[0].email as string, passwords[0] as string, bgNodeClient, check)) {
+    return check.setOffline('#c1-02: signMeIn failed');
   }
 
   // ...........................................................................
@@ -35,13 +46,19 @@ export const channelsCheck = async (
   }, bgNodeClient, check);
 
   if (!invitation) {
-    return check.setOffline('#06-03: createChannelInvitation failed');
+    return check.setOffline('#c1-03: createChannelInvitation failed');
+  }
+
+  // ...........................................................................
+  // Sign Out:
+  if (!await signMeOut(bgNodeClient, check)) {
+    return check.setOffline('#c1-04: signMeOut failed');
   }
 
   // ...........................................................................
   // Deleting all users:
   if (!await deleteMultipleUsers(users, bgNodeClient, check)) {
-    return check.setOffline('#06-50: deleteMultipleUsers failed');
+    return check.setOffline('#c1-05: deleteMultipleUsers failed');
   }
 
   check.health = ServiceHealth.ok;

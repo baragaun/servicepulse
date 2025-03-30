@@ -1,14 +1,20 @@
-import { MyUser } from '@baragaun/bg-node-client';
+import { MyUser, MyUserChanges } from '@baragaun/bg-node-client';
 
 import chance, { uniqueEmail, uniqueUserHandle } from '../../../helpers/chance.js';
+import getTestUserProps from '../../../helpers/getTestUserProps.js';
+import { TestUserProps } from '../../../types/TestUserProps.js';
 import { BgServiceApiCheck } from '../BgServiceApiCheck.js';
 
 export const generateUserProps = (
   check: BgServiceApiCheck,
   props?: Partial<MyUser>,
-): Partial<MyUser> => {
-  const adminNotes = props?.adminNotes ||
-    JSON.stringify({ password: chance.string({ length: 8 }) });
+): Partial<MyUserChanges> => {
+  const testUserProps: TestUserProps = props?.source
+    ? getTestUserProps(props)
+    : {
+      msaToken: '666666',
+      password: chance.string({ length: 8 }),
+    };
 
   return {
     firstName: props?.firstName || chance.first(),
@@ -18,7 +24,7 @@ export const generateUserProps = (
       check.config.testEmailPrefix || 'test',
       check.config.testEmailDomain || 'test.com',
     ),
-    adminNotes,
-    source: props?.source || 'testtoken=666666',
+    newPassword: testUserProps.password,
+    source: props?.source || JSON.stringify(testUserProps),
   };
 };

@@ -1,4 +1,4 @@
-import { BgNodeClient } from '@baragaun/bg-node-client';
+import { BgNodeClient, MyUserChanges } from '@baragaun/bg-node-client';
 
 import { BgServiceApiCheck } from './BgServiceApiCheck.js';
 import { ServiceHealth } from '../../enums.js';
@@ -8,7 +8,6 @@ import { signMeIn } from './helpers/signMeIn.js';
 import { signMeOut } from './helpers/signMeOut.js';
 import { signMeUp } from './helpers/signMeUp.js';
 import { updateMyUser } from './helpers/updateMyUser.js';
-import { UserProps } from './types.js';
 import chance from '../../helpers/chance.js';
 import appLogger from '../../helpers/logger.js';
 
@@ -31,29 +30,29 @@ export const userAccountsCheck = async (
   const myUserId = bgNodeClient.myUserId;
 
   if (!myUser) {
-    return check.setOffline('#07-01: signMeUp failed');
+    return check.setOffline('#a1-01: signMeUp failed');
   }
 
   if (!await signMeOut(bgNodeClient, check)) {
-    return check.setOffline('#07-02: signMeOut failed');
+    return check.setOffline('#a1-02: signMeOut failed');
   }
 
-  if (!await signMeIn(userProps.email as string, userProps.password as string, bgNodeClient, check)) {
-    return check.setOffline('#07-03: signMeIn failed');
+  if (!await signMeIn(userProps.email as string, userProps.newPassword as string, bgNodeClient, check)) {
+    return check.setOffline('#a1-03: signMeIn failed');
   }
 
-  const changes: Partial<UserProps> = {
+  const changes: Partial<MyUserChanges> = {
     id: myUserId,
     lastName: newLastName,
     termsAndConditionsAcceptedAt: new Date().toISOString(),
   }
 
   if (!await updateMyUser(changes, bgNodeClient, check)) {
-    return check.setOffline('#07-04: updateMyUser failed');
+    return check.setOffline('#a1-04: updateMyUser failed');
   }
 
   if (!await deleteMyUser(bgNodeClient, check)) {
-    return check.setOffline('#07-05: deleteMyUser failed');
+    return check.setOffline('#a1-05: deleteMyUser failed');
   }
 
   check.health = ServiceHealth.ok;

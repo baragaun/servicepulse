@@ -20,23 +20,27 @@ export const signMeOut = async (
 
   try {
     // Verifying the local user object:
-    const myUserFromCache = await bgNodeClient.operations.myUser.findMyUser({
+    const myUserFromCacheResponse = await bgNodeClient.operations.myUser.findMyUser({
       cachePolicy: CachePolicy.cache,
     });
 
-    if (myUserFromCache) {
-      return check.setOffline('#03-02: myUserFromCache is not null');
+    if (myUserFromCacheResponse.error !== 'unauthorized') {
+      return check.setOffline('#03-02: did not receive unauthorized');
+    }
+
+    if (myUserFromCacheResponse.object) {
+      return check.setOffline('#03-03: myUserFromCache is not null');
     }
   } catch {
     // ignore
   }
 
   if (bgNodeClient.isSignedIn) {
-    return check.setOffline('#03-03: bgNodeClient.isSignedIn incorrect');
+    return check.setOffline('#03-04: bgNodeClient.isSignedIn incorrect');
   }
 
   if (bgNodeClient.myUserId) {
-    return check.setOffline('#03-04: bgNodeClient.myUserId incorrect');
+    return check.setOffline('#03-05: bgNodeClient.myUserId incorrect');
   }
 
   return true;
