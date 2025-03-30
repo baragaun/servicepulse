@@ -2,7 +2,7 @@ import appStore from '../appStore.js';
 import { CheckType } from '../enums.js';
 import loadServices from '../services/helpers/loadServices.js';
 
-const serviceName = 'mmdata-dev';
+const serviceName = 'mmdata-local';
 
 await loadServices();
 const service = appStore.service(serviceName);

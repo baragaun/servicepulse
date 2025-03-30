@@ -3,7 +3,7 @@ import { CheckType } from '../enums.js';
 import loadServices from '../services/helpers/loadServices.js';
 
 await loadServices();
-const service = appStore.service('mmdata-prod');
+const service = appStore.service('mmdata-dev');
 
 if (!service) {
   throw new Error('Service not found');

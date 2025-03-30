@@ -5,10 +5,13 @@ import appLogger from '../../helpers/logger.js';
 import { BaseService } from '../../services/BaseService.js';
 import { BgServiceApiCheckConfig } from '../../types/index.js';
 import { BaseCheck } from '../BaseCheck.js';
-import { basicAccountSignUp } from './basicAccountSignUp.js';
+import { channelsCheck } from './channels.js';
+import { userAccountsCheck } from './userAccounts.js';
 import clientStore from '../../helpers/clientStore.js';
 
 const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
+const doAccountsTest = false;
+const doChannelsTest = true;
 
 export class BgServiceApiCheck extends BaseCheck {
   private _bgNodeClient?: BgNodeClient;
@@ -41,8 +44,18 @@ export class BgServiceApiCheck extends BaseCheck {
         return false;
       }
     }
+    if (doAccountsTest) {
+      if (!(await userAccountsCheck(this._bgNodeClient, this))) {
+        return false;
+      }
+    }
 
-    return basicAccountSignUp(this._bgNodeClient, this);
+    if (doChannelsTest) {
+      if (!(await channelsCheck(this._bgNodeClient, this))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private async init(): Promise<void> {

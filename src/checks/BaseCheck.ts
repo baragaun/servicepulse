@@ -18,7 +18,11 @@ export abstract class BaseCheck {
   public setOffline(reason: string): boolean {
     logger.error('BgServiceApiCheck.run.setOffline called.', { reason });
     this._health = ServiceHealth.offline;
-    this._reason = reason;
+    if (this._reason) {
+      this._reason += `; ${reason}`;
+    } else {
+      this._reason = reason;
+    }
     this._running = false;
     this._service.onCheckFinished();
 
