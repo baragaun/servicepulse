@@ -1,6 +1,7 @@
+import { MyUser } from '@baragaun/bg-node-client';
+
 import logger from './logger.js';
 import { TestUserProps } from '../types/TestUserProps.js';
-import { MyUser } from '@baragaun/bg-node-client';
 
 const getTestUserProps = (
   user: Partial<MyUser> | null | undefined,

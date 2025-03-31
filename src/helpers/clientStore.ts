@@ -6,6 +6,7 @@ import {
   ClientInfoStoreType,
   HttpHeaderName,
 } from '@baragaun/bg-node-client';
+
 import logger from './logger.js';
 
 let _client: BgNodeClient | undefined = undefined;

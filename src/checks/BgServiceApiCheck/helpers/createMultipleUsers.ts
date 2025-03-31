@@ -1,8 +1,8 @@
 import { BgNodeClient, MyUser, MyUserChanges } from '@baragaun/bg-node-client';
 
 import { BgServiceApiCheck } from '../BgServiceApiCheck.js';
-import { signMeUp } from './signMeUp.js';
 import { generateUserProps } from './generateUserProps.js';
+import { signMeUp } from './signMeUp.js';
 
 export const createMultipleUsers = async (
   props: Partial<MyUserChanges>[] | number,

@@ -3,8 +3,8 @@ import { BgNodeClient, MyUser } from '@baragaun/bg-node-client';
 import { BgServiceApiCheck } from '../BgServiceApiCheck.js';
 import { deleteMyUser } from './deleteMyUser.js';
 import { signMeIn } from './signMeIn.js';
-import logger from '../../../helpers/logger.js';
 import getTestUserProps from '../../../helpers/getTestUserProps.js';
+import logger from '../../../helpers/logger.js';
 
 export const deleteMultipleUsers = async (
   users: MyUser[],

@@ -2,15 +2,15 @@ import { BgNodeClient, ChannelInvitationStatus } from '@baragaun/bg-node-client'
 
 import { BgServiceApiCheck } from './BgServiceApiCheck.js';
 import { ServiceHealth } from '../../enums.js';
+import { acceptChannelInvitation } from './helpers/acceptChannelInvitation.js';
 import { createChannelInvitation } from './helpers/createChannelInvitation.js';
 import { createMultipleUsers } from './helpers/createMultipleUsers.js';
 import { deleteMultipleUsers } from './helpers/deleteMultipleUsers.js';
-import chance from '../../helpers/chance.js';
-import appLogger from '../../helpers/logger.js';
 import { signMeIn } from './helpers/signMeIn.js';
-import getTestUserProps from '../../helpers/getTestUserProps.js';
 import { signMeOut } from './helpers/signMeOut.js';
-import { acceptChannelInvitation } from './helpers/acceptChannelInvitation.js';
+import chance from '../../helpers/chance.js';
+import getTestUserProps from '../../helpers/getTestUserProps.js';
+import appLogger from '../../helpers/logger.js';
 
 const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
 

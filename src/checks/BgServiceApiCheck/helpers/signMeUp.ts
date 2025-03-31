@@ -7,9 +7,9 @@ import {
 
 import appLogger from '../../../helpers/logger.js';
 import { BgServiceApiCheck } from '../BgServiceApiCheck.js';
+import { generateUserProps } from './generateUserProps.js';
 import { signMeOut } from './signMeOut.js';
 import { verifyUserProps } from './verifyUserProps.js';
-import { generateUserProps } from './generateUserProps.js';
 
 const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
 
