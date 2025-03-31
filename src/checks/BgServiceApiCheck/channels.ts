@@ -1,4 +1,4 @@
-import { BgNodeClient } from '@baragaun/bg-node-client';
+import { BgNodeClient, ChannelInvitationStatus } from '@baragaun/bg-node-client';
 
 import { BgServiceApiCheck } from './BgServiceApiCheck.js';
 import { ServiceHealth } from '../../enums.js';
@@ -10,6 +10,7 @@ import appLogger from '../../helpers/logger.js';
 import { signMeIn } from './helpers/signMeIn.js';
 import getTestUserProps from '../../helpers/getTestUserProps.js';
 import { signMeOut } from './helpers/signMeOut.js';
+import { acceptChannelInvitation } from './helpers/acceptChannelInvitation.js';
 
 const logger = appLogger.child({ scope: 'BgServiceApiCheck' });
 
@@ -38,10 +39,10 @@ export const channelsCheck = async (
   }
 
   // ...........................................................................
-  // User #1 invites user #2:
+  // User #0 invites user #1:
   const invitation = await createChannelInvitation({
-    recipientId: users[0].id as string,
-    createdBy: users[1].id as string,
+    createdBy: users[0].id as string,
+    recipientId: users[1].id as string,
     messageText: chance.sentence(),
   }, bgNodeClient, check);
 
@@ -56,9 +57,37 @@ export const channelsCheck = async (
   }
 
   // ...........................................................................
+  // Signing in as user #1:
+  if (!await signMeIn(users[1].email as string, passwords[1] as string, bgNodeClient, check)) {
+    return check.setOffline('#c1-02: signMeIn failed');
+  }
+
+  // ...........................................................................
+  // User #1 accepts the invitation:
+  const reloadednvitation = await acceptChannelInvitation(
+    invitation.id,
+    bgNodeClient,
+    check,
+  );
+
+  if (!reloadednvitation) {
+    return check.setOffline('#c1-03: createChannelInvitation failed');
+  }
+
+  if (reloadednvitation.status !== ChannelInvitationStatus.accepted) {
+    return check.setOffline('#c1-04: createChannelInvitation is not accepted');
+  }
+
+  // ...........................................................................
+  // Sign Out:
+  if (!await signMeOut(bgNodeClient, check)) {
+    return check.setOffline('#c1-05: signMeOut failed');
+  }
+
+  // ...........................................................................
   // Deleting all users:
   if (!await deleteMultipleUsers(users, bgNodeClient, check)) {
-    return check.setOffline('#c1-05: deleteMultipleUsers failed');
+    return check.setOffline('#c1-06: deleteMultipleUsers failed');
   }
 
   check.health = ServiceHealth.ok;
