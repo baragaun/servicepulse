@@ -34,12 +34,10 @@ const getBgNodeClient = async (
       },
       logLevel: 'debug',
     };
-    _client = await new BgNodeClient().init(
+    _client = await new BgNodeClient().init({
       config,
-      undefined,
-      undefined,
-      logger.child({ scope: 'BgNodeClient' }),
-    );
+      appLogger: logger.child({ scope: 'BgNodeClient' }),
+    });
   }
 
   return _client;
